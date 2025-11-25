@@ -1,5 +1,15 @@
+package org.piet.ticketsbackend.passengers;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "passenger")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PassengerEntity {
 
     @Id
@@ -19,5 +29,4 @@ public class PassengerEntity {
 
     @Column(nullable = false, unique = true)
     private String documentNumber;
-
 }

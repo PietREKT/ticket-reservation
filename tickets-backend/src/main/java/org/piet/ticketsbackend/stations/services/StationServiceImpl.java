@@ -97,4 +97,9 @@ public class StationServiceImpl implements StationService {
     public Page<Station> getStationsByCity(String city, Pageable pageable) {
         return stationRepository.findByCity(city, pageable);
     }
+
+    @Override
+    public void deleteStation(Long id) {
+        stationRepository.deleteById(id);
+    }
 }

@@ -45,4 +45,10 @@ public class StationController {
                 )
         );
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteStationById(@PathVariable Long id){
+        stationService.deleteStation(id);
+        return ResponseEntity.ok().build();
+    }
 }

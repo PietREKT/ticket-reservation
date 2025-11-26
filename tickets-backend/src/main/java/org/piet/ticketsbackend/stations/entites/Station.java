@@ -31,4 +31,8 @@ public class Station {
     @NotNull
     @Column(unique = true)
     Point location;
+
+    public String getFullName(){
+        return city + (description != null ? " " + description : "");
+    }
 }

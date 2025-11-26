@@ -26,7 +26,7 @@ public class StationDto implements Serializable {
                 station.getCode(),
                 station.getCountryCode(),
                 station.getCity(),
-                station.getCity() + (station.getDescription() != null ? " " + station.getDescription() : "")
+                station.getFullName()
         );
     }
 }

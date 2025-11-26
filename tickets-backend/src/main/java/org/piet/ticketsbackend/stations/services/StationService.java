@@ -18,4 +18,6 @@ public interface StationService {
     public Station createStation(String code, String countryCode, String city, double x, double y);
 
     public Page<Station> getStationsByCity(String city, Pageable pageable);
+
+    public void deleteStation(Long id);
 }

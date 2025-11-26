@@ -35,4 +35,17 @@ public class Station {
     public String getFullName(){
         return city + (description != null ? " " + description : "");
     }
+
+    @Override
+    public String toString() {
+        return "Station{ " +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", code='" + code + '\'' +
+                ", countryCode='" + countryCode + '\'' +
+                ", city='" + city + '\'' +
+                ", location=" + (location != null ? location.toString() : "null") + '\'' +
+                ", fullName='" + getFullName() + '\'' +
+                " }";
+    }
 }

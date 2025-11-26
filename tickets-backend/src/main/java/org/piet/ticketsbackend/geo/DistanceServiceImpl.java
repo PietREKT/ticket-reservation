@@ -9,6 +9,7 @@ import org.piet.ticketsbackend.routes.entities.Route;
 import org.piet.ticketsbackend.routes.entities.RouteStop;
 import org.piet.ticketsbackend.stations.entites.Station;
 import org.piet.ticketsbackend.stations.repositories.StationRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,9 @@ import java.util.stream.IntStream;
 public class DistanceServiceImpl implements DistanceService{
 
     private final GeodeticCalculator calculator = new GeodeticCalculator();
+
+    @Value("${app.trains.avgSpeed}")
+    Double avgTrainSpeed;
 
     @Override
     public double distance(Station a, Station b) {
@@ -45,5 +49,25 @@ public class DistanceServiceImpl implements DistanceService{
         return IntStream.range(0, stations.size() - 1)
                 .mapToDouble(i -> distance(stations.get(i), stations.get(i + 1)))
                 .sum();
+    }
+
+    @Override
+    public int travelTimeInMinutes(Route route, double trainSpeed) {
+        return (int) Math.ceil((routeLength(route) / trainSpeed) * 60);
+    }
+
+    @Override
+    public int travelTimeInMinutes(Route route){
+        return travelTimeInMinutes(route, avgTrainSpeed);
+    }
+
+    @Override
+    public int timeBetweenStations(Station a, Station b, double trainSpeed) {
+        return (int) Math.ceil((distance(a, b) / trainSpeed) * 60);
+    }
+
+    @Override
+    public int timeBetweenStations(Station a, Station b) {
+        return timeBetweenStations(a, b, avgTrainSpeed);
     }
 }

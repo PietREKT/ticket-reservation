@@ -30,9 +30,6 @@ public class RouteServiceImpl implements RouteService {
     private final StationRepository stationRepository;
     private final MessageSource messageSource;
 
-    @Value("${app.trains.avgSpeed}")
-    Double avgTrainSpeed;
-
     public RouteServiceImpl(DistanceService distanceService,
                             RouteRepository routeRepository, StationRepository stationRepository, MessageSource messageSource) {
         this.distanceService = distanceService;
@@ -127,11 +124,8 @@ public class RouteServiceImpl implements RouteService {
 
         route.setStops(stops);
         route.setName(routeName);
-        double len = distanceService.routeLength(route);
-        route.setLength(len);
-
-        int timeInMins = (int) Math.ceil((len / avgTrainSpeed) * 60);
-        route.setTotalTimeMinutes(timeInMins);
+        route.setLength(distanceService.routeLength(route));
+        route.setTotalTimeMinutes(distanceService.travelTimeInMinutes(route));
 
         return routeRepository.save(route);
     }

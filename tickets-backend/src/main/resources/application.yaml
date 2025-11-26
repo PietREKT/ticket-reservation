@@ -24,3 +24,5 @@ app:
       srid: 4326
     api:
       prefix: /api
+    stations:
+      defaultWaitTime: 5

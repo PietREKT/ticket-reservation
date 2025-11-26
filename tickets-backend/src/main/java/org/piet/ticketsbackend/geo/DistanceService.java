@@ -7,4 +7,10 @@ public interface DistanceService {
     public double distance(Station a, Station b);
 
     public double routeLength(Route route);
+
+    public int travelTimeInMinutes(Route route, double trainSpeed);
+    public int travelTimeInMinutes(Route route);
+
+    public int timeBetweenStations(Station a, Station b, double trainSpeed);
+    public int timeBetweenStations(Station a, Station b);
 }

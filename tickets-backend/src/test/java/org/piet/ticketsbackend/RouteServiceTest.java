@@ -45,7 +45,6 @@ class RouteServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(routeService, "avgTrainSpeed", 80.0d);
         LocaleContextHolder.setLocale(Locale.ENGLISH);
     }
 
@@ -111,6 +110,8 @@ class RouteServiceTest {
                 .thenReturn(List.of(a, b, c));
 
         when(distanceService.routeLength(any(Route.class))).thenReturn(100.0);
+
+        when(distanceService.travelTimeInMinutes(any(Route.class))).thenReturn(75);
 
         when(routeRepository.save(any(Route.class)))
                 .thenAnswer(inv -> inv.getArgument(0, Route.class));

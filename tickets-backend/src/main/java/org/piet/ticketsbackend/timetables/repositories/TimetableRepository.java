@@ -1,6 +1,6 @@
 package org.piet.ticketsbackend.timetables.repositories;
 
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.piet.ticketsbackend.timetables.entities.Timetable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.Collection;
 import java.util.List;
 
 public interface TimetableRepository extends JpaRepository<Timetable, Long> {

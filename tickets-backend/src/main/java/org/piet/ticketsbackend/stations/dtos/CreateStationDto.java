@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 import java.io.Serializable;
 
 /**
- * DTO for {@link org.piet.ticketsbackend.stations.entites.Station}
+ * DTO for {@link org.piet.ticketsbackend.stations.entities.Station}
  */
 @Value
 public class CreateStationDto implements Serializable {

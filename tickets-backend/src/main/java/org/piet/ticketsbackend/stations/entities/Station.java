@@ -1,4 +1,4 @@
-package org.piet.ticketsbackend.stations.entites;
+package org.piet.ticketsbackend.stations.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -34,6 +34,10 @@ public class Station {
 
     public String getFullName(){
         return city + (description != null ? " " + description : "");
+    }
+
+    public boolean equals(Station station) {
+        return id.equals(station.id);
     }
 
     @Override

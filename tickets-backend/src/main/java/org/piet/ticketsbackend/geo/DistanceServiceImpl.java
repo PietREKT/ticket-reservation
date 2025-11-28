@@ -2,18 +2,15 @@ package org.piet.ticketsbackend.geo;
 
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
-import org.gavaghan.geodesy.GeodeticCurve;
 import org.gavaghan.geodesy.GlobalCoordinates;
 import org.locationtech.jts.geom.Point;
 import org.piet.ticketsbackend.routes.entities.Route;
 import org.piet.ticketsbackend.routes.entities.RouteStop;
-import org.piet.ticketsbackend.stations.entites.Station;
-import org.piet.ticketsbackend.stations.repositories.StationRepository;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -52,22 +49,18 @@ public class DistanceServiceImpl implements DistanceService{
     }
 
     @Override
-    public int travelTimeInMinutes(Route route, double trainSpeed) {
-        return (int) Math.ceil((routeLength(route) / trainSpeed) * 60);
+    public int travelTimeInMinutes(Route route, Double trainSpeed) {
+        if (route.getLength() == null) route.setLength(routeLength(route));
+
+        trainSpeed = trainSpeed != null ? trainSpeed : avgTrainSpeed;
+        return (int) Math.ceil((route.getLength() / trainSpeed) * 60);
     }
 
-    @Override
-    public int travelTimeInMinutes(Route route){
-        return travelTimeInMinutes(route, avgTrainSpeed);
-    }
 
     @Override
-    public int timeBetweenStations(Station a, Station b, double trainSpeed) {
+    public int timeBetweenStations(Station a, Station b, Double trainSpeed) {
+        trainSpeed = trainSpeed != null ? trainSpeed : avgTrainSpeed;
         return (int) Math.ceil((distance(a, b) / trainSpeed) * 60);
     }
 
-    @Override
-    public int timeBetweenStations(Station a, Station b) {
-        return timeBetweenStations(a, b, avgTrainSpeed);
-    }
 }

@@ -8,10 +8,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.piet.ticketsbackend.geo.DistanceService;
 import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
 import org.piet.ticketsbackend.routes.entities.Route;
-import org.piet.ticketsbackend.routes.entities.RouteStop;
 import org.piet.ticketsbackend.routes.repositories.RouteRepository;
 import org.piet.ticketsbackend.routes.services.RouteServiceImpl;
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.piet.ticketsbackend.stations.repositories.StationRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -23,7 +22,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class RouteServiceTest {

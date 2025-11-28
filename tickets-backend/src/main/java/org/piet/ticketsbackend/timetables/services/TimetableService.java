@@ -3,7 +3,8 @@ package org.piet.ticketsbackend.timetables.services;
 import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
 import org.piet.ticketsbackend.routes.entities.Route;
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
+import org.piet.ticketsbackend.timetables.dtos.SearchResultTimetableDto;
 import org.piet.ticketsbackend.timetables.entities.Timetable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,11 +21,29 @@ public interface TimetableService {
 
     public Page<Timetable> getTimetablesByStationAndWeekDay(Station station, DayOfWeek dayOfWeek, PaginationDto dto);
 
-    public Page<Timetable> getDeparturesFromStation(Station station, DayOfWeek day, LocalTime notEarlierThan, PaginationDto dto);
-    public List<Timetable> getDeparturesFromStation(Station station, DayOfWeek day, LocalTime notEarlierThan);
+    public Page<Timetable> getDeparturesFromStation(Station station, DayOfWeek day, LocalTime notEarlierThan, Pageable pageable);
+    default public Page<Timetable> getDeparturesFromStation(Station station, DayOfWeek day, LocalTime notEarlierThan, PaginationDto dto){
+        return getDeparturesFromStation(station, day, notEarlierThan, dto.toPageable());
+    }
+    default public List<Timetable> getDeparturesFromStation(Station station, DayOfWeek day, LocalTime notEarlierThan){
+        return getDeparturesFromStation(station, day, notEarlierThan, Pageable.unpaged()).getContent();
+    }
+    default public Page<SearchResultTimetableDto> getDeparturesAtStationSliced(Station station, DayOfWeek day, LocalTime notLaterThan, PaginationDto dto){
+        Page<Timetable> timetables = getDeparturesFromStation(station, day, notLaterThan, dto);
+        return timetables.map(t -> SearchResultTimetableDto.create(t, station, true));
+    }
 
-    public Page<Timetable> getArrivalsAtStation(Station station, DayOfWeek day, LocalTime notLaterThan, PaginationDto dto);
-    public List<Timetable> getArrivalsAtStation(Station station, DayOfWeek day, LocalTime notLaterThan);
+    public Page<Timetable> getArrivalsAtStation(Station station, DayOfWeek day, LocalTime notLaterThan, Pageable pageable);
+    default public Page<Timetable> getArrivalsAtStation(Station station, DayOfWeek day, LocalTime notLaterThan, PaginationDto dto){
+        return getArrivalsAtStation(station, day, notLaterThan, dto.toPageable());
+    };
+    default public List<Timetable> getArrivalsAtStation(Station station, DayOfWeek day, LocalTime notLaterThan){
+        return getArrivalsAtStation(station, day, notLaterThan, Pageable.unpaged()).getContent();
+    };
+    default public Page<SearchResultTimetableDto> getArrivalsAtStationSliced(Station station, DayOfWeek day, LocalTime notLaterThan, PaginationDto dto){
+        Page<Timetable> timetables = getArrivalsAtStation(station, day, notLaterThan, dto);
+        return timetables.map(t -> SearchResultTimetableDto.create(t, station, false));
+    }
 
     default public Timetable createTimetable(Route route, Set<DayOfWeek> operatingDays, LocalTime departureTime, Integer timeAtStation){
         return createTimetable(route, operatingDays, departureTime, timeAtStation, null);

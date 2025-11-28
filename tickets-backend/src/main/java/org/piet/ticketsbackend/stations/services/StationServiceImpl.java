@@ -4,9 +4,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.piet.ticketsbackend.globals.dtos.PageDto;
 import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.piet.ticketsbackend.stations.exceptions.DuplicateStationException;
 import org.piet.ticketsbackend.stations.repositories.StationRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +49,8 @@ public class StationServiceImpl implements StationService {
         ));
     }
 
-    private Station initStation(String code, String countryCode, String city, double x, double y) {
+    @Override
+    public Station createStation(String code, String countryCode, String city, double x, double y, String description) throws DuplicateStationException {
         Point location = new GeometryFactory(new PrecisionModel(), srid)
                 .createPoint(new Coordinate(x, y));
 
@@ -59,30 +59,9 @@ public class StationServiceImpl implements StationService {
         station.setCountryCode(countryCode);
         station.setCode(code);
         station.setLocation(location);
-
-        return station;
-    }
-
-    @Override
-    public Station createStation(String code, String countryCode, String city, double x, double y, String description) throws DuplicateStationException {
-        Station s = initStation(code, countryCode, city, x, y);
-        s.setDescription(description);
+        station.setDescription(description);
         try {
-            return stationRepository.save(s);
-        } catch (DataIntegrityViolationException ex) {
-            throw new DuplicateStationException(
-                    messageSource.getMessage("error.stations.duplicate",
-                            new Object[]{code},
-                            LocaleContextHolder.getLocale()
-                    )
-            );
-        }
-    }
-
-    @Override
-    public Station createStation(String code, String countryCode, String city, double x, double y) {
-        try{
-            return stationRepository.save(initStation(code, countryCode, city, x, y));
+            return stationRepository.save(station);
         } catch (DataIntegrityViolationException ex) {
             throw new DuplicateStationException(
                     messageSource.getMessage("error.stations.duplicate",
@@ -96,6 +75,11 @@ public class StationServiceImpl implements StationService {
     @Override
     public Page<Station> getStationsByCity(String city, Pageable pageable) {
         return stationRepository.findByCity(city, pageable);
+    }
+
+    @Override
+    public Page<Station> getAll(Pageable pageable) {
+        return stationRepository.findAll(pageable);
     }
 
     @Override

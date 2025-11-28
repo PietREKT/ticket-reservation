@@ -10,7 +10,7 @@ import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
 import org.piet.ticketsbackend.routes.entities.Route;
 import org.piet.ticketsbackend.routes.entities.RouteStop;
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.piet.ticketsbackend.timetables.entities.Timetable;
 import org.piet.ticketsbackend.timetables.entities.TimetableStop;
 import org.piet.ticketsbackend.timetables.repositories.TimetableRepository;

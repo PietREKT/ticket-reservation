@@ -11,10 +11,9 @@ import java.util.Set;
  * DTO for {@link org.piet.ticketsbackend.timetables.entities.Timetable}
  */
 @Value
-public class CreateTimetableDto implements Serializable {
+public class EditTimetableDto implements Serializable {
     LocalTime departureTime;
     Set<DayOfWeek> operatingDays;
-    Long routeId;
-    String routeName;
-    Integer timeAtStation;
+    Integer waitingTimeAtStation;
+    Long timetableId;
 }

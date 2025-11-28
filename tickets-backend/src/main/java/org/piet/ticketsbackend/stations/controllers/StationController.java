@@ -1,11 +1,16 @@
 package org.piet.ticketsbackend.stations.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.piet.ticketsbackend.globals.dtos.PageDto;
 import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.stations.dtos.CreateStationDto;
 import org.piet.ticketsbackend.stations.dtos.StationDto;
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.piet.ticketsbackend.stations.services.StationService;
+import org.piet.ticketsbackend.timetables.dtos.SearchResultTimetableDto;
+import org.piet.ticketsbackend.timetables.dtos.SearchTimetableRequestDto;
+import org.piet.ticketsbackend.timetables.dtos.TimetableDto;
+import org.piet.ticketsbackend.timetables.services.TimetableService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +18,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("${app.api.prefix}/stations")
+@RequiredArgsConstructor
 public class StationController {
 
     private final StationService stationService;
-
-    public StationController(StationService stationService) {
-        this.stationService = stationService;
-    }
+    private final TimetableService timetableService;
 
     @PostMapping("/add")
     public ResponseEntity<StationDto> createStation(@RequestBody CreateStationDto dto){
@@ -44,6 +47,29 @@ public class StationController {
                                 .map(StationDto::create)
                 )
         );
+    }
+
+    @GetMapping("/{id}/departures")
+    public ResponseEntity<PageDto<SearchResultTimetableDto>> getDeparturesFromStation(@PathVariable Long id, SearchTimetableRequestDto dto){
+        Station station = stationService.getStationById(id);
+        var deps = timetableService.getDeparturesAtStationSliced(station, dto.getDay(), dto.getTime(), dto.getPagination());
+
+        return ResponseEntity.ok(PageDto.create(deps));
+    }
+
+    @GetMapping("/{id}/arrivals")
+    public ResponseEntity<PageDto<SearchResultTimetableDto>> getArrivalsAtStation(@PathVariable Long id, SearchTimetableRequestDto dto){
+        Station station = stationService.getStationById(id);
+        var deps = timetableService.getArrivalsAtStationSliced(station, dto.getDay(), dto.getTime(), dto.getPagination());
+
+        return ResponseEntity.ok(PageDto.create(deps));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<PageDto<StationDto>> getAllStations(PaginationDto paginationDto){
+        var stations = stationService.getAll(paginationDto).map(StationDto::create);
+
+        return ResponseEntity.ok(PageDto.create(stations));
     }
 
     @DeleteMapping("/{id}")

@@ -31,4 +31,6 @@ public class TimetableStop {
     private LocalTime arrivalTime;
 
     private LocalTime departureTime;
+
+    private int dayOffset = 0;
 }

@@ -5,13 +5,12 @@ import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
 import org.piet.ticketsbackend.routes.entities.Route;
 import org.piet.ticketsbackend.routes.entities.RouteStop;
 import org.piet.ticketsbackend.routes.repositories.RouteRepository;
-import org.piet.ticketsbackend.routes.repositories.RouteStopRepository;
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.piet.ticketsbackend.stations.repositories.StationRepository;
-import org.piet.ticketsbackend.stations.services.StationService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -157,4 +156,9 @@ public class RouteServiceImpl implements RouteService {
         routeRepository.deleteById(routeId);
     }
 
+
+    @Override
+    public Page<Route> getAll(Pageable pageable) {
+        return routeRepository.findAll(pageable);
+    }
 }

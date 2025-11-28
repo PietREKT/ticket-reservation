@@ -1,6 +1,5 @@
 package org.piet.ticketsbackend;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -9,10 +8,9 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.mockito.InjectMocks;
 import org.piet.ticketsbackend.geo.DistanceServiceImpl;
-import org.piet.ticketsbackend.routes.dtos.RouteStopDto;
 import org.piet.ticketsbackend.routes.entities.Route;
 import org.piet.ticketsbackend.routes.entities.RouteStop;
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;

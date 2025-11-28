@@ -1,5 +1,7 @@
 package org.piet.ticketsbackend.routes.controllers;
 
+import org.piet.ticketsbackend.globals.dtos.PageDto;
+import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.routes.dtos.CreateRouteDto;
 import org.piet.ticketsbackend.routes.dtos.RouteDto;
 import org.piet.ticketsbackend.routes.dtos.RouteStopDto;
@@ -31,6 +33,12 @@ public class RouteController {
     @GetMapping(params = {"!id", "name"})
     public ResponseEntity<RouteDto> getRouteByName(@RequestParam String name){
         return ResponseEntity.ok(RouteDto.create(routeService.getRouteByName(name)));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<PageDto<RouteDto>> getAllRoutes(PaginationDto paginationDto){
+        var routes = routeService.getAll(paginationDto).map(RouteDto::create);
+        return ResponseEntity.ok(PageDto.create(routes));
     }
 
     @DeleteMapping("/{id}")

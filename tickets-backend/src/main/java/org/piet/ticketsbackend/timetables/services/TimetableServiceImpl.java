@@ -6,7 +6,7 @@ import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
 import org.piet.ticketsbackend.routes.entities.Route;
 import org.piet.ticketsbackend.routes.entities.RouteStop;
-import org.piet.ticketsbackend.stations.entites.Station;
+import org.piet.ticketsbackend.stations.entities.Station;
 import org.piet.ticketsbackend.timetables.entities.Timetable;
 import org.piet.ticketsbackend.timetables.entities.TimetableStop;
 import org.piet.ticketsbackend.timetables.repositories.TimetableRepository;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -58,23 +59,13 @@ public class TimetableServiceImpl implements TimetableService {
     }
 
     @Override
-    public Page<Timetable> getDeparturesFromStation(Station station, DayOfWeek day, LocalTime notEarlierThan, PaginationDto dto) {
-        return timetableRepository.findByStationAndDayOfWeekAndDepartureTime(station, day, notEarlierThan, dto.toPageable());
+    public Page<Timetable> getDeparturesFromStation(Station station, DayOfWeek day, LocalTime notEarlierThan, Pageable pageable) {
+        return timetableRepository.findByStationAndDayOfWeekAndDepartureTime(station, day, notEarlierThan, pageable);
     }
 
     @Override
-    public List<Timetable> getDeparturesFromStation(Station station, DayOfWeek day, LocalTime notEarlierThan) {
-        return timetableRepository.findByStationAndDayOfWeekAndDepartureTime(station, day, notEarlierThan);
-    }
-
-    @Override
-    public Page<Timetable> getArrivalsAtStation(Station station, DayOfWeek day, LocalTime notLaterThan, PaginationDto dto) {
-        return timetableRepository.findByStationAndDayOfWeekAndArrivalTime(station, day, notLaterThan, dto.toPageable());
-    }
-
-    @Override
-    public List<Timetable> getArrivalsAtStation(Station station, DayOfWeek day, LocalTime notLaterThan) {
-        return timetableRepository.findByStationAndDayOfWeekAndArrivalTime(station, day, notLaterThan);
+    public Page<Timetable> getArrivalsAtStation(Station station, DayOfWeek day, LocalTime notLaterThan, Pageable pageable) {
+        return timetableRepository.findByStationAndDayOfWeekAndArrivalTime(station, day, notLaterThan, pageable);
     }
 
     @Override
@@ -88,18 +79,24 @@ public class TimetableServiceImpl implements TimetableService {
 
         timeAtStation = timeAtStation != null ? timeAtStation : defaultTimeAtStation;
         trainSpeed = trainSpeed != null ? trainSpeed : defaultTrainSpeed;
-
+        int dayOffset = 0;
         for (int i = 0; i < routeStops.size(); i++) {
             TimetableStop stop = new TimetableStop();
+
             stop.setStop(routeStops.get(i));
             if (i == 0) {
                 stop.setDepartureTime(departureTime);
             } else {
+                TimetableStop previousStop = timetableStops.get(i - 1);
                 stop.setArrivalTime(
-                        timetableStops.get(i - 1).getDepartureTime().plusMinutes(
+                        previousStop.getDepartureTime().plusMinutes(
                                 distanceService.timeBetweenStations(routeStops.get(i - 1).getStation(), routeStops.get(i).getStation(), trainSpeed)
                         )
                 );
+                if (!stop.getArrivalTime().isAfter(previousStop.getDepartureTime())){
+                    dayOffset++;
+                    stop.setDayOffset(dayOffset);
+                }
                 if (i < routeStops.size() - 1) {
                     stop.setDepartureTime(stop.getArrivalTime().plusMinutes((long) timeAtStation));
                 }

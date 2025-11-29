@@ -16,11 +16,12 @@ public class PassengerRequest {
     private String lastName;
 
     @Email
-    @NotBlank
     private String email;
+
+    private LocalDate birthDate;
 
     @NotBlank
     private String documentNumber;
 
-    private LocalDate birthDate;
+    private Long userId;
 }

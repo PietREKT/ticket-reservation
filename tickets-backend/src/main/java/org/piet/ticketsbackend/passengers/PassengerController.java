@@ -1,6 +1,5 @@
 package org.piet.ticketsbackend.passengers;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.piet.ticketsbackend.passengers.dto.PassengerRequest;
 import org.piet.ticketsbackend.passengers.dto.PassengerResponse;
@@ -13,30 +12,33 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PassengerController {
 
-    private final PassengerService passengerService;
+    private final PassengerService service;
+    private final PassengerMapper mapper;
 
     @PostMapping
-    public PassengerResponse create(@Valid @RequestBody PassengerRequest request) {
-        return passengerService.create(request);
+    public PassengerResponse create(@RequestBody PassengerRequest req) {
+        return mapper.toResponse(service.create(req));
     }
 
     @GetMapping("/{id}")
     public PassengerResponse get(@PathVariable Long id) {
-        return passengerService.get(id);
-    }
-
-    @PutMapping("/{id}")
-    public PassengerResponse update(@PathVariable Long id, @Valid @RequestBody PassengerRequest request) {
-        return passengerService.update(id, request);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        passengerService.delete(id);
+        return mapper.toResponse(service.get(id));
     }
 
     @GetMapping
     public List<PassengerResponse> getAll() {
-        return passengerService.getAll();
+        return service.getAll().stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+    @PutMapping("/{id}")
+    public PassengerResponse update(@PathVariable Long id, @RequestBody PassengerRequest req) {
+        return mapper.toResponse(service.update(id, req));
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
     }
 }

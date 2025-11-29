@@ -1,7 +1,12 @@
 package org.piet.ticketsbackend.passengers;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.piet.ticketsbackend.users.entities.User;
+
 import java.time.LocalDate;
 
 @Entity
@@ -29,4 +34,8 @@ public class PassengerEntity {
 
     @Column(nullable = false, unique = true)
     private String documentNumber;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

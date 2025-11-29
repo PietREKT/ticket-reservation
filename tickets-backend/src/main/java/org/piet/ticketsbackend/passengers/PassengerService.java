@@ -2,7 +2,8 @@ package org.piet.ticketsbackend.passengers;
 
 import lombok.RequiredArgsConstructor;
 import org.piet.ticketsbackend.passengers.dto.PassengerRequest;
-import org.piet.ticketsbackend.passengers.dto.PassengerResponse;
+import org.piet.ticketsbackend.users.entities.User;
+import org.piet.ticketsbackend.users.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,57 +15,54 @@ import java.util.List;
 public class PassengerService {
 
     private final PassengerRepository passengerRepository;
+    private final UserRepository userRepository;
 
-    public PassengerResponse create(PassengerRequest request) {
-        PassengerEntity passenger = PassengerEntity.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .documentNumber(request.getDocumentNumber())
-                .birthDate(request.getBirthDate())
-                .build();
+    public PassengerEntity create(PassengerRequest req) {
+        PassengerEntity entity = new PassengerEntity();
 
-        return mapToResponse(passengerRepository.save(passenger));
+        entity.setFirstName(req.getFirstName());
+        entity.setLastName(req.getLastName());
+        entity.setEmail(req.getEmail());
+        entity.setBirthDate(req.getBirthDate());
+        entity.setDocumentNumber(req.getDocumentNumber());
+
+        if (req.getUserId() != null) {
+            User user = userRepository.findById(req.getUserId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+            entity.setUser(user);
+        }
+
+        return passengerRepository.save(entity);
     }
 
-    public PassengerResponse get(Long id) {
-        PassengerEntity passenger = passengerRepository.findById(id)
+    public PassengerEntity get(Long id) {
+        return passengerRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger not found"));
-        return mapToResponse(passenger);
     }
 
-    public PassengerResponse update(Long id, PassengerRequest request) {
-        PassengerEntity passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger not found"));
+    public List<PassengerEntity> getAll() {
+        return passengerRepository.findAll();
+    }
 
-        passenger.setFirstName(request.getFirstName());
-        passenger.setLastName(request.getLastName());
-        passenger.setEmail(request.getEmail());
-        passenger.setDocumentNumber(request.getDocumentNumber());
-        passenger.setBirthDate(request.getBirthDate());
+    public PassengerEntity update(Long id, PassengerRequest req) {
+        PassengerEntity entity = get(id);
 
-        return mapToResponse(passengerRepository.save(passenger));
+        entity.setFirstName(req.getFirstName());
+        entity.setLastName(req.getLastName());
+        entity.setEmail(req.getEmail());
+        entity.setBirthDate(req.getBirthDate());
+        entity.setDocumentNumber(req.getDocumentNumber());
+
+        if (req.getUserId() != null) {
+            User user = userRepository.findById(req.getUserId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+            entity.setUser(user);
+        }
+
+        return passengerRepository.save(entity);
     }
 
     public void delete(Long id) {
-        if (!passengerRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger not found");
-        }
         passengerRepository.deleteById(id);
-    }
-
-    public List<PassengerResponse> getAll() {
-        return passengerRepository.findAll().stream().map(this::mapToResponse).toList();
-    }
-
-    private PassengerResponse mapToResponse(PassengerEntity p) {
-        return PassengerResponse.builder()
-                .id(p.getId())
-                .firstName(p.getFirstName())
-                .lastName(p.getLastName())
-                .email(p.getEmail())
-                .documentNumber(p.getDocumentNumber())
-                .birthDate(p.getBirthDate())
-                .build();
     }
 }

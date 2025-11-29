@@ -6,6 +6,7 @@ spring:
   sql:
     init:
       platform: postgres
+      mode: always
   datasource:
     url: jdbc:postgresql://localhost:5432/${DB_NAME}
     username: ${DB_USER}
@@ -13,9 +14,8 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
-  devtools:
-
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
 
 app:
     trains:
@@ -24,3 +24,5 @@ app:
       srid: 4326
     api:
       prefix: /api
+    stations:
+      defaultWaitTime: 5

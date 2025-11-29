@@ -1,0 +1,18 @@
+package org.piet.ticketsbackend.stations.repositories;
+
+import org.piet.ticketsbackend.stations.entities.Station;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+public interface StationRepository extends JpaRepository<Station, Long> {
+    Optional<Station> findByCode(String code);
+
+    Page<Station> findByCity(String city, Pageable pageable);
+
+    List<Station> findByCodeIn(Collection<String> codes);
+}

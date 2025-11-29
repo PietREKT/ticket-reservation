@@ -1,5 +1,6 @@
 package org.piet.ticketsbackend.stations.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.piet.ticketsbackend.globals.dtos.PageDto;
 import org.piet.ticketsbackend.globals.dtos.PaginationDto;
@@ -25,7 +26,7 @@ public class StationController {
     private final TimetableService timetableService;
 
     @PostMapping("/add")
-    public ResponseEntity<StationDto> createStation(@RequestBody CreateStationDto dto){
+    public ResponseEntity<StationDto> createStation(@Valid @RequestBody CreateStationDto dto){
         Station station = stationService.createStation(dto.getCode(), dto.getCountryCode(), dto.getCity(), dto.getX(), dto.getY(), dto.getDescription());
         return ResponseEntity.ok(StationDto.create(station));
     }

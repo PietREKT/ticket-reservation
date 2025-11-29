@@ -40,7 +40,7 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public Route getRouteById(Long id) throws NotFoundException {
         return routeRepository.findById(id).orElseThrow(() -> new NotFoundException(
-                messageSource.getMessage("errors.routes.not_found.id",
+                messageSource.getMessage("error.routes.not_found.id",
                         new Object[]{id},
                         LocaleContextHolder.getLocale()
                 )
@@ -50,7 +50,7 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public Route getRouteByName(String name) throws NotFoundException {
         return routeRepository.findByNameIgnoreCase(name).orElseThrow(() -> new NotFoundException(
-                messageSource.getMessage("errors.routes.not_found.name",
+                messageSource.getMessage("error.routes.not_found.name",
                         new Object[]{name},
                         LocaleContextHolder.getLocale()
                 )

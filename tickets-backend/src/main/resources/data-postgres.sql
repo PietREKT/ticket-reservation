@@ -1,3 +1,12 @@
+insert into app_users (id, username, password, role, password_needs_changing)
+values ('8b1a5d5c-5a34-4c9b-b4c1-9e8c7a2f3d61',
+        'admin',
+        '$2a$10$Ljo4OU1172qr9XHszpAAfeIvVSwhb7Dpvv65KXwJoUehNQJINb8OK',
+        'ADMIN',
+        false);
+-- password evaluates to admin
+
+
 -- Stations (Polish major stations)
 INSERT INTO station (id, description, code, country_code, city, location) VALUES
                                                                               (1, 'Centralna',  'WAWC', 'PL', 'Warszawa', ST_GeomFromText('POINT(21.00365 52.22977)', 4326)),

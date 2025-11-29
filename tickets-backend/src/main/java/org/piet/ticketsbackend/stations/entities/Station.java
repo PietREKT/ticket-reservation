@@ -36,7 +36,7 @@ public class Station {
         return city + (description != null ? " " + description : "");
     }
 
-    public boolean equals(Station station) {
+    public boolean equalsStation(Station station) {
         return id.equals(station.id);
     }
 

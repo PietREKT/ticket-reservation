@@ -1,0 +1,28 @@
+spring:
+  config:
+    import: file:.env[.properties]
+  application:
+    name: tickets-backend
+  sql:
+    init:
+      platform: postgres
+      mode: always
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+
+app:
+    trains:
+      avgSpeed: 80
+    geometry:
+      srid: 4326
+    api:
+      prefix: /api
+    stations:
+      defaultWaitTime: 5

@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "app.trains.avgSpeed",
+      "type": "java.lang.Double",
+      "description": "Average train speed needed for time calculation."
+    },
+    {
+      "name": "app.geometry.srid",
+      "type": "java.lang.Integer",
+      "description": "Default SRID for geometry used in jts."
+    },
+    {
+      "name": "app.stations.defaultWaitTime",
+      "type": "java.lang.Integer",
+      "description": "Specify how long the train will wait at station by default."
+    }
+  ]
+}

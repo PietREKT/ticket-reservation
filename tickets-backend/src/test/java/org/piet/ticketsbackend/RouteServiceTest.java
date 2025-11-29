@@ -61,7 +61,7 @@ class RouteServiceTest {
     @Test
     void getRouteById_throwsNotFound() {
         when(routeRepository.findById(1L)).thenReturn(Optional.empty());
-        when(messageSource.getMessage(eq("errors.routes.not_found.id"), any(), any()))
+        when(messageSource.getMessage(eq("error.routes.not_found.id"), any(), any()))
                 .thenReturn("route not found");
 
         NotFoundException ex = assertThrows(
@@ -85,7 +85,7 @@ class RouteServiceTest {
     @Test
     void getRouteByName_throwsNotFound() {
         when(routeRepository.findByNameIgnoreCase("R1")).thenReturn(Optional.empty());
-        when(messageSource.getMessage(eq("errors.routes.not_found.name"), any(), any()))
+        when(messageSource.getMessage(eq("error.routes.not_found.name"), any(), any()))
                 .thenReturn("route name not found");
 
         NotFoundException ex = assertThrows(

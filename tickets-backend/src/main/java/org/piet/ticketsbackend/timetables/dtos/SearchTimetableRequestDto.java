@@ -1,5 +1,7 @@
 package org.piet.ticketsbackend.timetables.dtos;
 
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 
@@ -9,7 +11,10 @@ import java.time.LocalTime;
 
 @Value
 public class SearchTimetableRequestDto implements Serializable {
+    @NotNull
+    @NotNull
     DayOfWeek day;
+    @FutureOrPresent
     LocalTime time;
     PaginationDto pagination;
 

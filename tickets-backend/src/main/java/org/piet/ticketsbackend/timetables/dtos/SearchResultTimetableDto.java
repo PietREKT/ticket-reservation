@@ -31,7 +31,7 @@ public class SearchResultTimetableDto implements Serializable {
         int stationIndex = -1;
         for (int i = 0; i < stopsOrdered.size(); i++) {
             var stop = stopsOrdered.get(i);
-            if (stop != null && stop.getStop().getStation().equals(station)) {
+            if (stop != null && stop.getStop().getStation().equalsStation(station)) {
                 stationIndex = i;
                 break;
             }

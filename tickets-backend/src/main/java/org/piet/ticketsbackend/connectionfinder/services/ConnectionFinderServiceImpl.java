@@ -42,7 +42,7 @@ public class ConnectionFinderServiceImpl implements ConnectionFinderService {
             );
         }
 
-        if (from.equals(to)) {
+        if (from.equalsStation(to)) {
             throw new BadRequestException(
                     messageSource.getMessage("error.connections.equal_stations",
                             new Object[]{},
@@ -122,7 +122,7 @@ public class ConnectionFinderServiceImpl implements ConnectionFinderService {
             best.computeIfAbsent(currentStation, s -> new HashMap<>())
                     .put(transfersSoFar, currentArrival);
 
-            if (currentStation.equals(to) && !currentLegs.isEmpty()) {
+            if (currentStation.equalsStation(to) && !currentLegs.isEmpty()) {
                 ConnectionDto dto = ConnectionDto.create(from, to, currentLegs);
                 results.add(dto);
             }
@@ -193,14 +193,14 @@ public class ConnectionFinderServiceImpl implements ConnectionFinderService {
         List<ConnectionDto> all = findConnectionsByDeparture(from, to, date, LocalTime.MIN, maxTransfers, minTransferMinutes);
 
         return all.stream()
-                .filter(c -> !c.getArrivalDateTime().toLocalTime().isAfter(latestArrival))
+                .filter(c -> !c.getArrivalDateTime().isAfter(date.atTime(latestArrival)))
                 .toList();
     }
 
     private int indexOfStation(List<TimetableStop> stops, Station station) {
         for (int i = 0; i < stops.size(); i++) {
             RouteStop rs = stops.get(i).getStop();
-            if (rs != null && rs.getStation().equals(station))
+            if (rs != null && rs.getStation().equalsStation(station))
                 return i;
         }
         return -1;

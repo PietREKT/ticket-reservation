@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 @Table(name = "app_users")

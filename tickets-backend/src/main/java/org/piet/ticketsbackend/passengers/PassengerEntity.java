@@ -1,25 +1,21 @@
 package org.piet.ticketsbackend.passengers;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 import org.piet.ticketsbackend.users.entities.User;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "passenger")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class PassengerEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@PrimaryKeyJoinColumn(name = "id")
+@Getter
+@Setter
+public class PassengerEntity extends User {
 
     @Column(nullable = false)
     private String firstName;
@@ -30,12 +26,9 @@ public class PassengerEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private LocalDate birthDate;
 
     @Column(nullable = false, unique = true)
     private String documentNumber;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
 }

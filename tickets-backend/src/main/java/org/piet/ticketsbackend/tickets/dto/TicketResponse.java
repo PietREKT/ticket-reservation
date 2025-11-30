@@ -7,12 +7,14 @@ import org.piet.ticketsbackend.tickets.TicketType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class TicketResponse {
 
     private Long id;
-    private Long passengerId;
+
+    private UUID passengerId;
     private String passengerName;
 
     private Long trainId;

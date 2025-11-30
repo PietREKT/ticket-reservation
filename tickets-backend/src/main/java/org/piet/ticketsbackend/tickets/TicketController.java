@@ -2,12 +2,15 @@ package org.piet.ticketsbackend.tickets;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.piet.ticketsbackend.globals.dtos.PageDto;
+import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.tickets.dto.MyTicketView;
 import org.piet.ticketsbackend.tickets.dto.TicketPurchaseRequest;
 import org.piet.ticketsbackend.tickets.dto.TicketResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,9 +30,11 @@ public class TicketController {
     }
 
     @GetMapping("/my-tickets")
-    public List<MyTicketView> myTickets(@RequestParam Long passengerId) {
-        return ticketService.getTicketsForPassenger(passengerId).stream()
-                .map(ticketMapper::toMyTicketView)
-                .toList();
+    public PageDto<MyTicketView> myTickets(@RequestParam UUID passengerId,
+                                           PaginationDto paginationDto) {
+
+        Page<TicketEntity> page = ticketService.getTicketsForPassenger(passengerId, paginationDto);
+        Page<MyTicketView> mapped = page.map(ticketMapper::toMyTicketView);
+        return PageDto.create(mapped);
     }
 }

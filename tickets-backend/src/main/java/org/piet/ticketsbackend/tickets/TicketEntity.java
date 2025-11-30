@@ -29,6 +29,7 @@ public class TicketEntity {
     private Long wagonId;
     private Integer coachNumber;
     private Integer seatNumber;
+    private String trainName;
 
     private Long routeId;
     private String startStationCode;
@@ -38,8 +39,6 @@ public class TicketEntity {
 
     private LocalDateTime departureTime;
     private LocalDate travelDate;
-
-    private String trainName;
 
     private BigDecimal price;
 

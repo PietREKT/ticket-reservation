@@ -33,3 +33,5 @@ app:
         expiration: 3600
         issuer: ticket-system
         secret: ${JWT_SECRET}
+    tickets:
+      maxSeatsPerCoach: 80

@@ -1,39 +1,93 @@
 package org.piet.ticketsbackend.tickets.client;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.piet.ticketsbackend.geo.DistanceService;
+import org.piet.ticketsbackend.routes.entities.Route;
+import org.piet.ticketsbackend.routes.services.RouteService;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
-@Service
+@Component
 public class RouteApiClient {
 
+    private final RouteService routeService;
+    private final DistanceService distanceService;
+
+    public RouteApiClient(RouteService routeService,
+                          DistanceService distanceService) {
+        this.routeService = routeService;
+        this.distanceService = distanceService;
+    }
+
+
     public RouteInfo getRouteInfo(Long routeId,
-                                  LocalDate date,
+                                  LocalDate travelDate,
                                   String startStationCode,
                                   String endStationCode) {
 
+        Route route = routeService.getRouteById(routeId);
+
+        double distanceKm = distanceService.routeLength(route);
+
+        BigDecimal basePrice = BigDecimal
+                .valueOf(distanceKm)
+                .multiply(new BigDecimal("0.5"))
+                .setScale(2, RoundingMode.HALF_UP);
+
+        LocalDateTime departure = LocalDateTime.of(travelDate, LocalTime.of(8, 0));
+
         return new RouteInfo(
-                routeId,
-                "MockStart",
-                "MockEnd",
-                LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 12, 0),
-                new BigDecimal("100.00")
+                route.getId(),
+                startStationCode,
+                endStationCode,
+                departure,
+                basePrice
         );
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
+
     public static class RouteInfo {
-        private Long routeId;
-        private String startStationName;
-        private String endStationName;
-        private LocalDateTime departureTime;
-        private BigDecimal basePrice;
+
+        private final Long routeId;
+        private final String startStationName;
+        private final String endStationName;
+        private final LocalDateTime departureTime;
+        private final BigDecimal basePrice;
+
+        public RouteInfo(Long routeId,
+                         String startStationName,
+                         String endStationName,
+                         LocalDateTime departureTime,
+                         BigDecimal basePrice) {
+            this.routeId = routeId;
+            this.startStationName = startStationName;
+            this.endStationName = endStationName;
+            this.departureTime = departureTime;
+            this.basePrice = basePrice;
+        }
+
+        public Long getRouteId() {
+            return routeId;
+        }
+
+        public String getStartStationName() {
+            return startStationName;
+        }
+
+        public String getEndStationName() {
+            return endStationName;
+        }
+
+        public LocalDateTime getDepartureTime() {
+            return departureTime;
+        }
+
+        public BigDecimal getBasePrice() {
+            return basePrice;
+        }
     }
 }

@@ -1,18 +1,20 @@
 package org.piet.ticketsbackend.tickets;
 
 import lombok.RequiredArgsConstructor;
+import org.piet.ticketsbackend.globals.dtos.PaginationDto;
+import org.piet.ticketsbackend.globals.exceptions.BadRequestException;
+import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
 import org.piet.ticketsbackend.passengers.PassengerEntity;
 import org.piet.ticketsbackend.passengers.PassengerRepository;
 import org.piet.ticketsbackend.tickets.client.RouteApiClient;
 import org.piet.ticketsbackend.tickets.client.SeatApiClient;
 import org.piet.ticketsbackend.tickets.dto.TicketPurchaseRequest;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class TicketService {
     public TicketEntity buyTicket(TicketPurchaseRequest request) {
 
         PassengerEntity passenger = passengerRepository.findById(request.getPassengerId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger not found"));
+                .orElseThrow(() -> new NotFoundException("Passenger not found"));
 
         var routeInfo = routeApiClient.getRouteInfo(
                 request.getRouteId(),
@@ -42,8 +44,8 @@ public class TicketService {
                 request.getTravelDate()
         );
 
-        if (!seat.isSuccess()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No free seats");
+        if (seat == null || !seat.isSuccess()) {
+            throw new BadRequestException("No free seats for selected train/wagon");
         }
 
         BigDecimal price = routeInfo.getBasePrice();
@@ -78,7 +80,7 @@ public class TicketService {
 
     public void cancelTicket(Long ticketId) {
         TicketEntity ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
+                .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
         if (ticket.getStatus() == TicketStatus.CANCELED) {
             return;
@@ -96,7 +98,10 @@ public class TicketService {
         );
     }
 
-    public List<TicketEntity> getTicketsForPassenger(Long passengerId) {
-        return ticketRepository.findByPassenger_Id(passengerId);
+    public Page<TicketEntity> getTicketsForPassenger(UUID passengerId, PaginationDto paginationDto) {
+        return ticketRepository.findByPassenger_Id(
+                passengerId,
+                paginationDto.toPageable()
+        );
     }
 }

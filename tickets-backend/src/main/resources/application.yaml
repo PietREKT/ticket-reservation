@@ -16,6 +16,8 @@ spring:
     hibernate:
       ddl-auto: create-drop
     defer-datasource-initialization: true
+  jmx:
+    enabled: true
 
 app:
     trains:
@@ -26,3 +28,8 @@ app:
       prefix: /api
     stations:
       defaultWaitTime: 5
+    security:
+      jwt:
+        expiration: 3600
+        issuer: ticket-system
+        secret: ${JWT_SECRET}

@@ -1,5 +1,6 @@
 package org.piet.ticketsbackend.timetables.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.piet.ticketsbackend.globals.dtos.PageDto;
 import org.piet.ticketsbackend.routes.entities.Route;
@@ -22,7 +23,7 @@ public class TimetableController {
     private final RouteService routeService;
 
     @PostMapping("/add")
-    public ResponseEntity<TimetableDto> createTimetable(@RequestBody CreateTimetableDto dto){
+    public ResponseEntity<TimetableDto> createTimetable(@Valid @RequestBody CreateTimetableDto dto){
         Route route = routeService.getRouteById(dto.getRouteId());
 
         Timetable timetable = timetableService.createTimetable(route, dto.getOperatingDays(), dto.getDepartureTime(), dto.getTimeAtStation());
@@ -43,7 +44,7 @@ public class TimetableController {
     }
 
     @PatchMapping("/edit")
-    public ResponseEntity<TimetableDto> editTimetable(@RequestBody EditTimetableDto dto){
+    public ResponseEntity<TimetableDto> editTimetable(@Valid @RequestBody EditTimetableDto dto){
         Timetable timetable = timetableService.editTimetable(dto.getTimetableId(), dto.getOperatingDays(), dto.getWaitingTimeAtStation());
         return ResponseEntity.ok(TimetableDto.create(timetable));
     }

@@ -41,7 +41,7 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     public Timetable getTimetableById(Long id) throws NotFoundException {
         return timetableRepository.findById(id).orElseThrow(() -> new NotFoundException(
-                messageSource.getMessage("errors.timetables.not_found.id",
+                messageSource.getMessage("error.timetables.not_found.id",
                         new Object[]{id},
                         LocaleContextHolder.getLocale()
                 ))
@@ -95,12 +95,12 @@ public class TimetableServiceImpl implements TimetableService {
                 );
                 if (!stop.getArrivalTime().isAfter(previousStop.getDepartureTime())){
                     dayOffset++;
-                    stop.setDayOffset(dayOffset);
                 }
                 if (i < routeStops.size() - 1) {
                     stop.setDepartureTime(stop.getArrivalTime().plusMinutes((long) timeAtStation));
                 }
             }
+            stop.setDayOffset(dayOffset);
             stop.setTimetable(timetable);
             timetableStops.add(stop);
         }

@@ -64,7 +64,7 @@ class TimetableServiceTest {
     @Test
     void getTimetableById_throwsNotFound_whenMissing() {
         when(timetableRepository.findById(1L)).thenReturn(Optional.empty());
-        when(messageSource.getMessage(eq("errors.timetables.not_found.id"), any(), any()))
+        when(messageSource.getMessage(eq("error.timetables.not_found.id"), any(), any()))
                 .thenReturn("timetable not found");
 
         NotFoundException ex = assertThrows(

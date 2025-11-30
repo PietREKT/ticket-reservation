@@ -1,6 +1,8 @@
 package org.piet.ticketsbackend.connectionfinder.dtos;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 import org.piet.ticketsbackend.connectionfinder.models.RouteSearchType;
 import org.piet.ticketsbackend.globals.dtos.PaginationDto;
@@ -11,12 +13,17 @@ import java.time.LocalTime;
 
 @Value
 public class FindConnectionServiceDto implements Serializable {
+    @NotNull
     Long fromStationId;
+    @NotNull
     Long toStationId;
 
+    @FutureOrPresent
     LocalDate date;
+    @NotNull
     LocalTime time;
 
+    @NotNull
     RouteSearchType type;
 
     @Max(3)

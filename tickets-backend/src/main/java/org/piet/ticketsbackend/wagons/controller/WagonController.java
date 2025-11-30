@@ -2,14 +2,17 @@ package org.piet.ticketsbackend.wagons.controller;
 
 import jakarta.validation.Valid;
 import org.piet.ticketsbackend.globals.dtos.PageDto;
+import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.wagons.dto.WagonCreateDto;
 import org.piet.ticketsbackend.wagons.dto.WagonDto;
 import org.piet.ticketsbackend.wagons.dto.WagonUpdateDto;
 import org.piet.ticketsbackend.wagons.service.WagonService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/wagons")
+@RequestMapping("${app.api.prefix}/wagons")
 public class WagonController {
 
     private final WagonService service;
@@ -19,39 +22,41 @@ public class WagonController {
     }
 
     @GetMapping
-    public PageDto<WagonDto> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return service.getAll(page, size);
+    public ResponseEntity<PageDto<WagonDto>> getAll(PaginationDto paginationDto) {
+        return ResponseEntity.ok(service.getAll(paginationDto));
     }
 
     @GetMapping("/train/{trainId}")
-    public PageDto<WagonDto> getByTrain(
+    public ResponseEntity<PageDto<WagonDto>> getByTrain(
             @PathVariable Long trainId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            PaginationDto paginationDto
     ) {
-        return service.getByTrain(trainId, page, size);
+        return ResponseEntity.ok(service.getByTrain(trainId, paginationDto));
     }
 
     @GetMapping("/{id}")
-    public WagonDto getById(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<WagonDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
     }
 
     @PostMapping
-    public WagonDto create(@Valid @RequestBody WagonCreateDto dto) {
-        return service.create(dto);
+    public ResponseEntity<WagonDto> create(@Valid @RequestBody WagonCreateDto dto) {
+        WagonDto created = service.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public WagonDto update(@PathVariable Long id, @Valid @RequestBody WagonUpdateDto dto) {
-        return service.update(id, dto);
+    public ResponseEntity<WagonDto> update(
+            @PathVariable Long id,
+            @Valid @RequestBody WagonUpdateDto dto
+    ) {
+        WagonDto updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,6 +1,7 @@
 package org.piet.ticketsbackend.wagons.service;
 
 import org.piet.ticketsbackend.globals.dtos.PageDto;
+import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
 import org.piet.ticketsbackend.trains.entity.TrainEntity;
 import org.piet.ticketsbackend.trains.repository.TrainRepository;
@@ -25,15 +26,17 @@ public class WagonServiceImpl implements WagonService {
     }
 
     @Override
-    public PageDto<WagonDto> getAll(int page, int size) {
-        Page<WagonEntity> result = repository.findAll(PageRequest.of(page, size));
-        return PageDto.create(result.map(this::toDto));
+    public PageDto<WagonDto> getAll(PaginationDto paginationDto) {
+        PageRequest pageable = PageRequest.of(paginationDto.getPage(), paginationDto.getSize());
+        Page<WagonEntity> page = repository.findAll(pageable);
+        return PageDto.create(page.map(this::toDto));
     }
 
     @Override
-    public PageDto<WagonDto> getByTrain(Long trainId, int page, int size) {
-        Page<WagonEntity> result = repository.findAllByTrainId(trainId, PageRequest.of(page, size));
-        return PageDto.create(result.map(this::toDto));
+    public PageDto<WagonDto> getByTrain(Long trainId, PaginationDto paginationDto) {
+        PageRequest pageable = PageRequest.of(paginationDto.getPage(), paginationDto.getSize());
+        Page<WagonEntity> page = repository.findAllByTrainId(trainId, pageable);
+        return PageDto.create(page.map(this::toDto));
     }
 
     @Override
@@ -75,7 +78,6 @@ public class WagonServiceImpl implements WagonService {
     public void delete(Long id) {
         WagonEntity entity = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("wagon.not_found"));
-
         repository.delete(entity);
     }
 

@@ -1,6 +1,7 @@
 package org.piet.ticketsbackend.trains.service;
 
 import org.piet.ticketsbackend.globals.dtos.PageDto;
+import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.globals.exceptions.NotFoundException;
 import org.piet.ticketsbackend.trains.dto.TrainCreateDto;
 import org.piet.ticketsbackend.trains.dto.TrainDto;
@@ -8,7 +9,6 @@ import org.piet.ticketsbackend.trains.dto.TrainUpdateDto;
 import org.piet.ticketsbackend.trains.entity.TrainEntity;
 import org.piet.ticketsbackend.trains.repository.TrainRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,11 +21,9 @@ public class TrainServiceImpl implements TrainService {
     }
 
     @Override
-    public PageDto<TrainDto> getAll(int page, int size) {
-        Page<TrainEntity> result = repository.findAll(PageRequest.of(page, size));
-
-        Page<TrainDto> mapped = result.map(this::toDto);
-        return PageDto.create(mapped);
+    public PageDto<TrainDto> getAll(PaginationDto paginationDto) {
+        Page<TrainEntity> result = repository.findAll(paginationDto.toPageable());
+        return PageDto.create(result.map(this::toDto));
     }
 
     @Override
@@ -52,7 +50,6 @@ public class TrainServiceImpl implements TrainService {
 
         entity.setModel(dto.getModel());
         entity.setNumber(dto.getName());
-
 
         TrainEntity saved = repository.save(entity);
         return toDto(saved);

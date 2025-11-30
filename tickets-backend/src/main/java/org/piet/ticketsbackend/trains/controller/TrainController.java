@@ -2,6 +2,7 @@ package org.piet.ticketsbackend.trains.controller;
 
 import jakarta.validation.Valid;
 import org.piet.ticketsbackend.globals.dtos.PageDto;
+import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.trains.dto.TrainCreateDto;
 import org.piet.ticketsbackend.trains.dto.TrainDto;
 import org.piet.ticketsbackend.trains.dto.TrainUpdateDto;
@@ -11,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/trains")
+@RequestMapping("${app.api.prefix}/trains")
 public class TrainController {
 
     private final TrainService service;
@@ -21,11 +22,9 @@ public class TrainController {
     }
 
     @GetMapping
-    public ResponseEntity<PageDto<TrainDto>> getTrains(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return ResponseEntity.ok(service.getAll(page, size));
+    public ResponseEntity<PageDto<TrainDto>> getTrains(PaginationDto paginationDto) {
+        PageDto<TrainDto> page = service.getAll(paginationDto);
+        return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")

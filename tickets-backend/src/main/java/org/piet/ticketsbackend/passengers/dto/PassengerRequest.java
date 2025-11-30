@@ -3,6 +3,8 @@ package org.piet.ticketsbackend.passengers.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import java.util.UUID;
+
 
 import java.time.LocalDate;
 
@@ -23,5 +25,5 @@ public class PassengerRequest {
     @NotBlank
     private String documentNumber;
 
-    private Long userId;
+    private UUID userId;
 }

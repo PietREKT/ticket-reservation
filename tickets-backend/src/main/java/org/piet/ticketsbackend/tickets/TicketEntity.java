@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ticket")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,26 +21,30 @@ public class TicketEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "passenger_id", nullable = false)
     private PassengerEntity passenger;
 
-    private Long wagonId;
     private Long trainId;
-
-    private String startStation;
-    private String endStation;
-
-    @Enumerated(EnumType.STRING)
-    private TicketType ticketType;
-
+    private Long wagonId;
     private Integer coachNumber;
-    private String trainName;
     private Integer seatNumber;
+
+    private Long routeId;
+    private String startStationCode;
+    private String endStationCode;
+    private String startStationName;
+    private String endStationName;
 
     private LocalDateTime departureTime;
     private LocalDate travelDate;
 
+    private String trainName;
+
     private BigDecimal price;
+
+    @Enumerated(EnumType.STRING)
+    private TicketType ticketType;
 
     @Enumerated(EnumType.STRING)
     private TicketStatus status;

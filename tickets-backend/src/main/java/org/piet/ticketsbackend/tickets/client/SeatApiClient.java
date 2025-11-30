@@ -10,16 +10,30 @@ import java.time.LocalDate;
 @Service
 public class SeatApiClient {
 
-    public SeatAllocation allocateSeat(Long trainId, Long wagonId, LocalDate date) {
-        return new SeatAllocation(true, trainId, wagonId, 1, 15, "Mock Train");
+    public SeatAllocation allocateSeat(Long trainId,
+                                       Long wagonId,
+                                       Integer coachNumber,
+                                       LocalDate date) {
+        return new SeatAllocation(
+                true,
+                trainId,
+                wagonId,
+                coachNumber != null ? coachNumber : 1,
+                15,
+                "Mock Train"
+        );
     }
 
-    public void releaseSeat(Long trainId, Long wagonId, Integer seat, LocalDate date) {
+    public void releaseSeat(Long trainId,
+                            Long wagonId,
+                            Integer coachNumber,
+                            Integer seatNumber,
+                            LocalDate date) {
     }
 
     @Data
-    @AllArgsConstructor
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class SeatAllocation {
         private boolean success;
         private Long trainId;

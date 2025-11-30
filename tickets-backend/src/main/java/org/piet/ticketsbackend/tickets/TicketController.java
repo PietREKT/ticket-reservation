@@ -14,10 +14,11 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
+    private final TicketMapper ticketMapper;
 
     @PostMapping("/ticket")
-    public TicketResponse buyTicket(@Valid @RequestBody TicketPurchaseRequest req) {
-        return ticketService.buyTicket(req);
+    public TicketResponse buyTicket(@Valid @RequestBody TicketPurchaseRequest request) {
+        return ticketMapper.toResponse(ticketService.buyTicket(request));
     }
 
     @DeleteMapping("/ticket/{id}")
@@ -27,6 +28,8 @@ public class TicketController {
 
     @GetMapping("/my-tickets")
     public List<MyTicketView> myTickets(@RequestParam Long passengerId) {
-        return ticketService.getTicketsForPassenger(passengerId);
+        return ticketService.getTicketsForPassenger(passengerId).stream()
+                .map(ticketMapper::toMyTicketView)
+                .toList();
     }
 }

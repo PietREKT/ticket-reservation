@@ -12,14 +12,23 @@ import java.time.LocalDateTime;
 @Service
 public class RouteApiClient {
 
-    public RouteInfo getRouteInfo(Long routeId, LocalDate date, String start, String end) {
-        return new RouteInfo(routeId, start, end,
-                LocalDateTime.now().plusHours(2), new BigDecimal("100"));
+    public RouteInfo getRouteInfo(Long routeId,
+                                  LocalDate date,
+                                  String startStationCode,
+                                  String endStationCode) {
+
+        return new RouteInfo(
+                routeId,
+                "MockStart",
+                "MockEnd",
+                LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 12, 0),
+                new BigDecimal("100.00")
+        );
     }
 
     @Data
-    @AllArgsConstructor
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class RouteInfo {
         private Long routeId;
         private String startStationName;

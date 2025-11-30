@@ -5,14 +5,13 @@ import org.piet.ticketsbackend.passengers.PassengerEntity;
 import org.piet.ticketsbackend.passengers.PassengerRepository;
 import org.piet.ticketsbackend.tickets.client.RouteApiClient;
 import org.piet.ticketsbackend.tickets.client.SeatApiClient;
-import org.piet.ticketsbackend.tickets.dto.MyTicketView;
 import org.piet.ticketsbackend.tickets.dto.TicketPurchaseRequest;
-import org.piet.ticketsbackend.tickets.dto.TicketResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -24,95 +23,80 @@ public class TicketService {
     private final RouteApiClient routeApiClient;
     private final SeatApiClient seatApiClient;
 
-    public TicketResponse buyTicket(TicketPurchaseRequest req) {
-        PassengerEntity passenger = passengerRepository.findById(req.getPassengerId())
+    public TicketEntity buyTicket(TicketPurchaseRequest request) {
+
+        PassengerEntity passenger = passengerRepository.findById(request.getPassengerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Passenger not found"));
 
         var routeInfo = routeApiClient.getRouteInfo(
-                req.getRouteId(), req.getTravelDate(),
-                req.getStartStationCode(), req.getEndStationCode()
+                request.getRouteId(),
+                request.getTravelDate(),
+                request.getStartStationCode(),
+                request.getEndStationCode()
         );
 
-        var price = req.getTicketType() == TicketType.DISCOUNT
-                ? routeInfo.getBasePrice().multiply(BigDecimal.valueOf(0.5))
-                : routeInfo.getBasePrice();
+        var seat = seatApiClient.allocateSeat(
+                request.getTrainId(),
+                request.getWagonId(),
+                request.getCoachNumber(),
+                request.getTravelDate()
+        );
 
-        var seat = seatApiClient.allocateSeat(req.getTrainId(), req.getWagonId(), req.getTravelDate());
         if (!seat.isSuccess()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "No free seats");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No free seats");
         }
+
+        BigDecimal price = routeInfo.getBasePrice();
+        if (request.getTicketType() == TicketType.DISCOUNT) {
+            price = price.multiply(new BigDecimal("0.5")); // 50% ulgi
+        }
+        price = price.setScale(2, RoundingMode.HALF_UP);
 
         TicketEntity ticket = TicketEntity.builder()
                 .passenger(passenger)
-                .trainId(req.getTrainId())
-                .wagonId(req.getWagonId())
-                .startStation(routeInfo.getStartStationName())
-                .endStation(routeInfo.getEndStationName())
-                .ticketType(req.getTicketType())
+                .trainId(seat.getTrainId())
+                .wagonId(seat.getWagonId())
                 .coachNumber(seat.getCoachNumber())
                 .seatNumber(seat.getSeatNumber())
                 .trainName(seat.getTrainName())
+
+                .routeId(routeInfo.getRouteId())
+                .startStationCode(request.getStartStationCode())
+                .endStationCode(request.getEndStationCode())
+                .startStationName(routeInfo.getStartStationName())
+                .endStationName(routeInfo.getEndStationName())
                 .departureTime(routeInfo.getDepartureTime())
-                .travelDate(req.getTravelDate())
+                .travelDate(request.getTravelDate())
+
                 .price(price)
+                .ticketType(request.getTicketType())
                 .status(TicketStatus.ACTIVE)
                 .build();
 
-        return mapToResponse(ticketRepository.save(ticket));
+        return ticketRepository.save(ticket);
     }
 
-    public void cancelTicket(Long id) {
-        TicketEntity ticket = ticketRepository.findById(id)
+    public void cancelTicket(Long ticketId) {
+        TicketEntity ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
 
-        if (ticket.getStatus() == TicketStatus.CANCELED)
+        if (ticket.getStatus() == TicketStatus.CANCELED) {
             return;
+        }
 
         ticket.setStatus(TicketStatus.CANCELED);
         ticketRepository.save(ticket);
 
-        seatApiClient.releaseSeat(ticket.getTrainId(), ticket.getWagonId(),
-                ticket.getSeatNumber(), ticket.getTravelDate());
+        seatApiClient.releaseSeat(
+                ticket.getTrainId(),
+                ticket.getWagonId(),
+                ticket.getCoachNumber(),
+                ticket.getSeatNumber(),
+                ticket.getTravelDate()
+        );
     }
 
-    public List<MyTicketView> getTicketsForPassenger(Long passengerId) {
-        return ticketRepository.findByPassengerId(passengerId).stream()
-                .map(this::mapToMyTicket)
-                .toList();
-    }
-
-    private TicketResponse mapToResponse(TicketEntity ticket) {
-        return TicketResponse.builder()
-                .id(ticket.getId())
-                .passengerId(ticket.getPassenger().getId())
-                .passengerName(ticket.getPassenger().getFirstName() + " " +
-                        ticket.getPassenger().getLastName())
-                .trainId(ticket.getTrainId())
-                .trainName(ticket.getTrainName())
-                .coachNumber(ticket.getCoachNumber())
-                .seatNumber(ticket.getSeatNumber())
-                .startStation(ticket.getStartStation())
-                .endStation(ticket.getEndStation())
-                .departureTime(ticket.getDepartureTime())
-                .travelDate(ticket.getTravelDate())
-                .price(ticket.getPrice())
-                .ticketType(ticket.getTicketType())
-                .status(ticket.getStatus())
-                .build();
-    }
-
-    private MyTicketView mapToMyTicket(TicketEntity ticket) {
-        return MyTicketView.builder()
-                .ticketId(ticket.getId())
-                .trainName(ticket.getTrainName())
-                .coachNumber(ticket.getCoachNumber())
-                .seatNumber(ticket.getSeatNumber())
-                .startStation(ticket.getStartStation())
-                .endStation(ticket.getEndStation())
-                .departureTime(ticket.getDepartureTime())
-                .price(ticket.getPrice())
-                .ticketType(ticket.getTicketType())
-                .status(ticket.getStatus())
-                .build();
+    public List<TicketEntity> getTicketsForPassenger(Long passengerId) {
+        return ticketRepository.findByPassenger_Id(passengerId);
     }
 }

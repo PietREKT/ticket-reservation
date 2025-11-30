@@ -1,6 +1,5 @@
 package org.piet.ticketsbackend.tickets.dto;
 
-import lombok.Builder;
 import lombok.Data;
 import org.piet.ticketsbackend.tickets.TicketStatus;
 import org.piet.ticketsbackend.tickets.TicketType;
@@ -10,7 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
 public class TicketResponse {
 
     private Long id;
@@ -19,11 +17,15 @@ public class TicketResponse {
 
     private Long trainId;
     private String trainName;
+    private Long wagonId;
     private Integer coachNumber;
     private Integer seatNumber;
 
-    private String startStation;
-    private String endStation;
+    private Long routeId;
+    private String startStationCode;
+    private String endStationCode;
+    private String startStationName;
+    private String endStationName;
 
     private LocalDateTime departureTime;
     private LocalDate travelDate;

@@ -66,4 +66,15 @@ class PassengerServiceTest {
 
         verify(passengerRepository, times(1)).delete(entity);
     }
+
+    @Test
+    void delete_shouldThrowNotFoundWhenPassengerDoesNotExist() {
+        UUID id = UUID.randomUUID();
+        when(passengerRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> passengerService.delete(id));
+
+        verify(passengerRepository, times(1)).findById(id);
+        verify(passengerRepository, never()).delete(any());
+    }
 }

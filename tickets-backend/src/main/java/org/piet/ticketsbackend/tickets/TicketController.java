@@ -25,7 +25,6 @@ public class TicketController {
         return ticketMapper.toResponse(ticketService.buyTicket(request));
     }
 
-    // TicketEntity ma Long id, więc tutaj też Long
     @DeleteMapping("/ticket/{id}")
     public void cancelTicket(@PathVariable Long id) {
         ticketService.cancelTicket(id);

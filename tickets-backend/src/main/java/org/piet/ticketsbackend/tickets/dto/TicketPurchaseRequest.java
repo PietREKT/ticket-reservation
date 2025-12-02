@@ -17,7 +17,6 @@ public class TicketPurchaseRequest {
     @NotNull
     private Long trainId;
 
-    // NOWE: wagon + sekcja
     @NotNull
     private Long wagonId;
 

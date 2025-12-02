@@ -25,21 +25,20 @@ public class TicketEntity {
     @JoinColumn(name = "passenger_id", nullable = false)
     private PassengerEntity passenger;
 
-    // powiązanie z pociągiem
     private Long trainId;
     private String trainName;
 
-    // powiązanie z wagonem
-    private Long wagonId;         // klucz do WagonEntity
-    private Integer coachNumber;  // np. sekcja w wagonie
-    private Integer seatNumber;   // konkretne miejsce w wagonie
+    private Long wagonId;
+    private Integer coachNumber;
+    private Integer seatNumber;
 
-    // trasa
     private Long routeId;
     private String startStationCode;
     private String endStationCode;
+
     private String startStationName;
     private String endStationName;
+
     private LocalDateTime departureTime;
     private LocalDate travelDate;
 

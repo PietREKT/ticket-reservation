@@ -19,7 +19,6 @@ public class TicketMapper {
         dto.setTrainId(t.getTrainId());
         dto.setTrainName(t.getTrainName());
 
-        // info o wagonie
         dto.setWagonId(t.getWagonId());
         dto.setCoachNumber(t.getCoachNumber());
         dto.setSeatNumber(t.getSeatNumber());

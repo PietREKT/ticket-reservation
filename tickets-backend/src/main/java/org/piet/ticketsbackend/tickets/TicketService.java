@@ -8,13 +8,17 @@ import org.piet.ticketsbackend.passengers.PassengerRepository;
 import org.piet.ticketsbackend.tickets.TicketEntity;
 import org.piet.ticketsbackend.tickets.TicketRepository;
 import org.piet.ticketsbackend.tickets.TicketStatus;
+import org.piet.ticketsbackend.tickets.TicketType;
 import org.piet.ticketsbackend.tickets.client.SeatApiClient;
 import org.piet.ticketsbackend.tickets.client.SeatApiClient.SeatAllocationResponse;
+import org.piet.ticketsbackend.tickets.client.RouteApiClient;
+import org.piet.ticketsbackend.tickets.client.RouteApiClient.RouteInfo;
 import org.piet.ticketsbackend.tickets.dto.TicketPurchaseRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -24,6 +28,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final PassengerRepository passengerRepository;
     private final SeatApiClient seatApiClient;
+    private final RouteApiClient routeApiClient;
 
     @Transactional
     public TicketEntity buyTicket(TicketPurchaseRequest request) {
@@ -31,7 +36,6 @@ public class TicketService {
         PassengerEntity passenger = passengerRepository.findById(request.getPassengerId())
                 .orElseThrow(() -> new NotFoundException("Passenger not found"));
 
-        // SeatApiClient sam waliduje wagon + pociąg
         SeatAllocationResponse seat = seatApiClient.allocateSeat(
                 request.getTrainId(),
                 request.getWagonId(),
@@ -39,21 +43,37 @@ public class TicketService {
                 request.getTravelDate()
         );
 
-        // tworzymy bilet tylko z tymi danymi, które faktycznie mamy
+        RouteInfo routeInfo = routeApiClient.getRouteInfo(
+                request.getRouteId(),
+                request.getTravelDate(),
+                request.getStartStationCode(),
+                request.getEndStationCode()
+        );
+
+        BigDecimal price = routeInfo.getBasePrice();
+        TicketType type = request.getTicketType();
+        if (type == TicketType.DISCOUNT) {
+            price = price.multiply(new BigDecimal("0.5"));
+        }
+
         TicketEntity ticket = TicketEntity.builder()
                 .passenger(passenger)
                 .trainId(seat.trainId())
+                .trainName(seat.trainName())
                 .wagonId(seat.wagonId())
-                .coachNumber(request.getCoachNumber())   // numer wagonu w składzie
-                .seatNumber(seat.seatNumber())           // przydzielone miejsce w wagonie
+                .coachNumber(request.getCoachNumber())
+                .seatNumber(seat.seatNumber())
                 .routeId(request.getRouteId())
                 .startStationCode(request.getStartStationCode())
                 .endStationCode(request.getEndStationCode())
+                .startStationName(routeInfo.getStartStationName())
+                .endStationName(routeInfo.getEndStationName())
+                .departureTime(routeInfo.getDepartureTime())
+                .price(price)
                 .travelDate(request.getTravelDate())
                 .status(TicketStatus.ACTIVE)
-                .ticketType(request.getTicketType())
+                .ticketType(type)
                 .build();
-
 
         return ticketRepository.save(ticket);
     }
@@ -63,11 +83,10 @@ public class TicketService {
         TicketEntity ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
-        // releaseSeat ma taką samą sygnaturę jak allocateSeat
         seatApiClient.releaseSeat(
                 ticket.getTrainId(),
                 ticket.getWagonId(),
-                ticket.getCoachNumber(),
+                ticket.getSeatNumber(),
                 ticket.getTravelDate()
         );
 
@@ -75,7 +94,7 @@ public class TicketService {
         ticketRepository.save(ticket);
     }
 
-    public Page<?> getTicketsForPassenger(UUID passengerId, PaginationDto paginationDto) {
+    public Page<TicketEntity> getTicketsForPassenger(UUID passengerId, PaginationDto paginationDto) {
         return ticketRepository.findByPassenger_Id(
                 passengerId,
                 paginationDto.toPageable()

@@ -123,3 +123,32 @@ INSERT INTO timetable_stop (id, routestop_id, timetable_id, arrival_time, depart
                                                                                                           (9,  9, 4, NULL, TIME '23:30', 0),
                                                                                                           -- Warszawa Centralna (arrival next day, day_offset = 1)
                                                                                                           (10, 10, 4, TIME '05:30', NULL, 1);
+
+-- User, który jest jednocześnie pasażerem
+INSERT INTO app_users (id, username, password, role, password_needs_changing)
+VALUES ('11111111-1111-1111-1111-111111111111',
+        'jan.kowalski',
+        '$2a$10$Ljo4OU1172qr9XHszpAAfeIvVSwhb7Dpvv65KXwJoUehNQJINb8OK', -- hasło: admin
+        'PASSENGER',
+        false);
+
+INSERT INTO passenger (id, first_name, last_name, email, birth_date, document_number)
+VALUES ('11111111-1111-1111-1111-111111111111',
+        'Jan',
+        'Kowalski',
+        'jan.kowalski@example.com',
+        DATE '1990-01-01',
+        'ABC123456');
+
+-- Pociągi (tabela: pociag, zgodnie z TrainEntity)
+INSERT INTO pociag (id, model, numer_pociagu, numer_linii, predkosc, ilosc_wagonow)
+VALUES
+    (1, 'ED250', 'IC1001', '1', 200, 2),
+    (2, 'ED160', 'IC2001', '2', 160, 1);
+
+-- Wagony (tabela: wagon) powiązane z pociągami powyżej
+INSERT INTO wagon (id, numer, miejsca_ogolnie, miejsca_wolne, klasa, pociag_id)
+VALUES
+    (1, 'W1', 80, 80, '2', 1),
+    (2, 'W2', 60, 60, '1', 1),
+    (3, 'W3', 80, 80, '2', 2);

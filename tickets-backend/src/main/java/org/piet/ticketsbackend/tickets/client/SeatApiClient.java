@@ -1,105 +1,80 @@
 package org.piet.ticketsbackend.tickets.client;
 
+import lombok.RequiredArgsConstructor;
 import org.piet.ticketsbackend.globals.exceptions.BadRequestException;
-import org.piet.ticketsbackend.tickets.TicketRepository;
-import org.springframework.beans.factory.annotation.Value;
+import org.piet.ticketsbackend.wagons.entity.WagonEntity;
+import org.piet.ticketsbackend.wagons.repository.WagonRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.stream.IntStream;
 
 @Component
+@RequiredArgsConstructor
 public class SeatApiClient {
 
-    private final TicketRepository ticketRepository;
+    private final WagonRepository wagonRepository;
 
-    @Value("${app.tickets.maxSeatsPerCoach:80}")
-    private int maxSeatsPerCoach;
+    /**
+     * Allocation result
+     */
+    public record SeatAllocationResponse(
+            Long trainId,
+            Long wagonId,
+            Integer seatNumber,
+            LocalDate travelDate
+    ) {}
 
-    public SeatApiClient(TicketRepository ticketRepository) {
-        this.ticketRepository = ticketRepository;
-    }
-
-
+    /**
+     * Allocate seat
+     */
     public SeatAllocationResponse allocateSeat(Long trainId,
                                                Long wagonId,
                                                Integer coachNumber,
                                                LocalDate travelDate) {
 
-        int freeSeat = IntStream.rangeClosed(1, maxSeatsPerCoach)
-                .filter(seat -> ticketRepository
-                        .findByTrainIdAndWagonIdAndCoachNumberAndSeatNumberAndTravelDate(
-                                trainId, wagonId, coachNumber, seat, travelDate
-                        ).isEmpty())
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException("No free seats in this coach"));
+        WagonEntity wagon = wagonRepository.findById(wagonId)
+                .orElseThrow(() -> new BadRequestException("Wagon not found"));
 
-        String trainName = "Train " + trainId;
+        if (wagon.getTrain() == null || !wagon.getTrain().getId().equals(trainId)) {
+            throw new BadRequestException("Wagon does not belong to selected train");
+        }
 
-        return new SeatAllocationResponse(
-                true,
-                trainId,
-                wagonId,
-                coachNumber,
-                freeSeat,
-                trainName
-        );
+        Integer capacity = wagon.getSeatsTotal();
+        if (capacity == null || capacity <= 0) {
+            throw new BadRequestException("Wagon has no seats configured");
+        }
+
+        // coachNumber: numer wagonu w składzie – tylko walidujemy, że jest dodatni
+        if (coachNumber <= 0) {
+            throw new BadRequestException("Coach number must be positive");
+        }
+
+        // losujemy MIEJSCE w wagonie 1..capacity
+        int seatNumber = 1 + (int) (Math.random() * capacity);
+
+        return new SeatAllocationResponse(trainId, wagonId, seatNumber, travelDate);
     }
 
 
+    /**
+     * Release seat after cancellation
+     */
     public void releaseSeat(Long trainId,
                             Long wagonId,
                             Integer coachNumber,
-                            Integer seatNumber,
                             LocalDate travelDate) {
 
-    }
+        WagonEntity wagon = wagonRepository.findById(wagonId)
+                .orElseThrow(() -> new BadRequestException("Wagon not found"));
 
-    public static class SeatAllocationResponse {
-
-        private final boolean success;
-        private final Long trainId;
-        private final Long wagonId;
-        private final Integer coachNumber;
-        private final Integer seatNumber;
-        private final String trainName;
-
-        public SeatAllocationResponse(boolean success,
-                                      Long trainId,
-                                      Long wagonId,
-                                      Integer coachNumber,
-                                      Integer seatNumber,
-                                      String trainName) {
-            this.success = success;
-            this.trainId = trainId;
-            this.wagonId = wagonId;
-            this.coachNumber = coachNumber;
-            this.seatNumber = seatNumber;
-            this.trainName = trainName;
+        if (wagon.getTrain() == null || !wagon.getTrain().getId().equals(trainId)) {
+            throw new BadRequestException("Wagon does not belong to selected train");
         }
 
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public Long getTrainId() {
-            return trainId;
-        }
-
-        public Long getWagonId() {
-            return wagonId;
-        }
-
-        public Integer getCoachNumber() {
-            return coachNumber;
-        }
-
-        public Integer getSeatNumber() {
-            return seatNumber;
-        }
-
-        public String getTrainName() {
-            return trainName;
-        }
+        // REAL implementation would restore seat availability here
+        System.out.println("Seat released: train=" + trainId +
+                ", wagon=" + wagonId +
+                ", seat=" + coachNumber +
+                ", date=" + travelDate);
     }
 }

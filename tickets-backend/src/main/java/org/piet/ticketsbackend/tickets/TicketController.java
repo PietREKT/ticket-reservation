@@ -7,6 +7,7 @@ import org.piet.ticketsbackend.globals.dtos.PaginationDto;
 import org.piet.ticketsbackend.tickets.dto.MyTicketView;
 import org.piet.ticketsbackend.tickets.dto.TicketPurchaseRequest;
 import org.piet.ticketsbackend.tickets.dto.TicketResponse;
+import org.piet.ticketsbackend.tickets.service.TicketService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,17 +25,17 @@ public class TicketController {
         return ticketMapper.toResponse(ticketService.buyTicket(request));
     }
 
+    // TicketEntity ma Long id, więc tutaj też Long
     @DeleteMapping("/ticket/{id}")
     public void cancelTicket(@PathVariable Long id) {
         ticketService.cancelTicket(id);
     }
 
     @GetMapping("/my-tickets")
-    public PageDto<MyTicketView> myTickets(@RequestParam UUID passengerId,
-                                           PaginationDto paginationDto) {
-
-        Page<TicketEntity> page = ticketService.getTicketsForPassenger(passengerId, paginationDto);
-        Page<MyTicketView> mapped = page.map(ticketMapper::toMyTicketView);
+    public PageDto myTickets(@RequestParam UUID passengerId,
+                             PaginationDto paginationDto) {
+        Page<?> page = ticketService.getTicketsForPassenger(passengerId, paginationDto);
+        Page<MyTicketView> mapped = page.map(t -> ticketMapper.toMyTicketView((TicketEntity) t));
         return PageDto.create(mapped);
     }
 }

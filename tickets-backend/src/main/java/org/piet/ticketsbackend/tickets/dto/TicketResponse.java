@@ -19,6 +19,8 @@ public class TicketResponse {
 
     private Long trainId;
     private String trainName;
+
+    // wagon + miejsce
     private Long wagonId;
     private Integer coachNumber;
     private Integer seatNumber;

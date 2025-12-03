@@ -1,4 +1,4 @@
-package org.piet.ticketsbackend;
+package org.piet.ticketsbackend.timetables;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

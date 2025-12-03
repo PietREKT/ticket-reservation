@@ -1,4 +1,4 @@
-package org.piet.ticketsbackend;
+package org.piet.ticketsbackend.routes;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

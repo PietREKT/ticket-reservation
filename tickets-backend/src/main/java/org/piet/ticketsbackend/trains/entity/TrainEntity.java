@@ -25,6 +25,24 @@ public class TrainEntity {
     @Column(name = "ilosc_wagonow")
     private Integer wagonCount;
 
+    public TrainEntity() {
+    }
+
+    public TrainEntity(
+            Long id,
+            String model,
+            String number,
+            String lineNumber,
+            Integer speed,
+            Integer wagonCount
+    ) {
+        this.id = id;
+        this.model = model;
+        this.number = number;
+        this.lineNumber = lineNumber;
+        this.speed = speed;
+        this.wagonCount = wagonCount;
+    }
 
     public Long getId() {
         return id;
@@ -74,3 +92,4 @@ public class TrainEntity {
         this.wagonCount = wagonCount;
     }
 }
+

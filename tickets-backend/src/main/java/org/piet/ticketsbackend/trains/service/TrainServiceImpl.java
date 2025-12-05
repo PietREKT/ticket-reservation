@@ -37,10 +37,13 @@ public class TrainServiceImpl implements TrainService {
     public TrainDto create(TrainCreateDto dto) {
         TrainEntity entity = new TrainEntity();
         entity.setModel(dto.getModel());
-        entity.setNumber(dto.getName());
+        entity.setNumber(dto.getNumber());
+        entity.setLineNumber(dto.getLineNumber());
+        entity.setSpeed(dto.getSpeed());
+        entity.setWagonCount(dto.getWagonCount());
 
         TrainEntity saved = repository.save(entity);
-        return toDto(saved);
+        return toDto(saved, dto.getRouteId());
     }
 
     @Override
@@ -49,10 +52,13 @@ public class TrainServiceImpl implements TrainService {
                 .orElseThrow(() -> new NotFoundException("train.not_found"));
 
         entity.setModel(dto.getModel());
-        entity.setNumber(dto.getName());
+        entity.setNumber(dto.getNumber());
+        entity.setLineNumber(dto.getLineNumber());
+        entity.setSpeed(dto.getSpeed());
+        entity.setWagonCount(dto.getWagonCount());
 
         TrainEntity saved = repository.save(entity);
-        return toDto(saved);
+        return toDto(saved, dto.getRouteId());
     }
 
     @Override
@@ -68,7 +74,23 @@ public class TrainServiceImpl implements TrainService {
                 e.getId(),
                 e.getModel(),
                 e.getNumber(),
+                e.getLineNumber(),
+                e.getSpeed(),
+                e.getWagonCount(),
                 null
         );
     }
+
+    private TrainDto toDto(TrainEntity e, Long routeId) {
+        return new TrainDto(
+                e.getId(),
+                e.getModel(),
+                e.getNumber(),
+                e.getLineNumber(),
+                e.getSpeed(),
+                e.getWagonCount(),
+                routeId
+        );
+    }
 }
+

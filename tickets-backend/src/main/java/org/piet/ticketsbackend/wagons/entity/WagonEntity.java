@@ -27,6 +27,25 @@ public class WagonEntity {
     @JoinColumn(name = "pociag_id", nullable = false)
     private TrainEntity train;
 
+    public WagonEntity() {
+    }
+
+    public WagonEntity(
+            Long id,
+            String number,
+            Integer seatsTotal,
+            Integer seatsFree,
+            String seatClass,
+            TrainEntity train
+    ) {
+        this.id = id;
+        this.number = number;
+        this.seatsTotal = seatsTotal;
+        this.seatsFree = seatsFree;
+        this.seatClass = seatClass;
+        this.train = train;
+    }
+
     public Long getId() {
         return id;
     }

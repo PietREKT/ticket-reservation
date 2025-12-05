@@ -12,7 +12,14 @@ public class WagonDto {
     public WagonDto() {
     }
 
-    public WagonDto(Long id, String number, Integer seatsTotal, Integer seatsFree, String seatClass, Long trainId) {
+    public WagonDto(
+            Long id,
+            String number,
+            Integer seatsTotal,
+            Integer seatsFree,
+            String seatClass,
+            Long trainId
+    ) {
         this.id = id;
         this.number = number;
         this.seatsTotal = seatsTotal;

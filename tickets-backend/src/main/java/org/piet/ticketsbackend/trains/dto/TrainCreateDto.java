@@ -23,7 +23,6 @@ public class TrainCreateDto {
     @Min(0)
     private Integer wagonCount;
 
-    // na razie tylko w DTO – relacja z trasą może powstać później
     private Long routeId;
 
     public String getModel() {

@@ -1,6 +1,7 @@
 package org.piet.ticketsbackend.wagons.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
 @Entity
@@ -25,6 +26,21 @@ public class WagonSeatReservationEntity {
 
     @Column(name = "travel_date", nullable = false)
     private LocalDate travelDate;
+
+    public WagonSeatReservationEntity() {
+    }
+
+    public WagonSeatReservationEntity(
+            Long id,
+            WagonEntity wagon,
+            Integer seatNumber,
+            LocalDate travelDate
+    ) {
+        this.id = id;
+        this.wagon = wagon;
+        this.seatNumber = seatNumber;
+        this.travelDate = travelDate;
+    }
 
     public Long getId() {
         return id;
@@ -54,3 +70,4 @@ public class WagonSeatReservationEntity {
         this.travelDate = travelDate;
     }
 }
+

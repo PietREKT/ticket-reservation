@@ -7,14 +7,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+// SOLID: SRP - DTO służy tylko do danych
 @Data
 public class PassengerRequest {
-
-    @NotBlank
-    private String username;
-
-    @NotBlank
-    private String password;
 
     @NotBlank
     private String firstName;

@@ -14,16 +14,15 @@ import org.piet.ticketsbackend.tickets.client.RouteApiClient;
 import org.piet.ticketsbackend.tickets.client.SeatApiClient;
 import org.piet.ticketsbackend.tickets.dto.TicketPurchaseRequest;
 import org.piet.ticketsbackend.tickets.service.TicketService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -56,7 +55,6 @@ class TicketServiceTest {
         when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
 
         LocalDate travelDate = LocalDate.of(2025, 12, 1);
-
         RouteApiClient.RouteInfo routeInfo = new RouteApiClient.RouteInfo(
                 1L,
                 "WAW",
@@ -69,11 +67,11 @@ class TicketServiceTest {
 
         SeatApiClient.SeatAllocationResponse seatResponse =
                 new SeatApiClient.SeatAllocationResponse(
-                        10L,           // trainId
-                        5L,            // wagonId
-                        15,            // seatNumber
-                        travelDate,    // travelDate
-                        "Train 10"     // trainName
+                        10L,
+                        5L,
+                        15,
+                        travelDate,
+                        "Train 10"
                 );
         when(seatApiClient.allocateSeat(10L, 5L, 1, travelDate))
                 .thenReturn(seatResponse);
@@ -104,7 +102,6 @@ class TicketServiceTest {
         assertEquals(15, ticket.getSeatNumber());
         assertEquals(TicketType.DISCOUNT, ticket.getTicketType());
         assertEquals(TicketStatus.ACTIVE, ticket.getStatus());
-        // 100 * 0.5 = 50, porównanie przez compareTo, żeby skala nie przeszkadzała
         assertEquals(0, ticket.getPrice().compareTo(new BigDecimal("50.00")));
 
         verify(ticketRepository, times(1)).save(any(TicketEntity.class));
@@ -130,8 +127,6 @@ class TicketServiceTest {
         when(passengerRepository.findById(passengerId)).thenReturn(Optional.of(passenger));
 
         LocalDate date = LocalDate.of(2025, 12, 1);
-
-        // NIE stubujemy routeApiClient tutaj – wyjątek poleci już na allocateSeat
         when(seatApiClient.allocateSeat(10L, 5L, 1, date))
                 .thenThrow(new BadRequestException("No free seats in this wagon"));
 
@@ -166,9 +161,8 @@ class TicketServiceTest {
 
         assertEquals(TicketStatus.CANCELED, ticket.getStatus());
         verify(ticketRepository, times(1)).save(ticket);
-        verify(seatApiClient, times(1)).releaseSeat(
-                10L, 5L, 15, LocalDate.of(2025, 12, 1)
-        );
+        verify(seatApiClient, times(1))
+                .releaseSeat(10L, 5L, 15, LocalDate.of(2025, 12, 1));
     }
 
     @Test
@@ -189,13 +183,13 @@ class TicketServiceTest {
                 java.util.List.of(new TicketEntity(), new TicketEntity())
         );
 
-        when(ticketRepository.findByPassenger_Id(passengerId, pageable))
+        when(ticketRepository.findByPassengerId(passengerId, pageable))
                 .thenReturn(page);
 
         Page<TicketEntity> result = ticketService.getTicketsForPassenger(passengerId, pagination);
 
         assertEquals(2, result.getContent().size());
         verify(ticketRepository, times(1))
-                .findByPassenger_Id(passengerId, pageable);
+                .findByPassengerId(passengerId, pageable);
     }
 }

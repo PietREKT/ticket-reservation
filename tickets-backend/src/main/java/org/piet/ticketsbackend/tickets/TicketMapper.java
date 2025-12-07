@@ -4,25 +4,22 @@ import org.piet.ticketsbackend.tickets.dto.MyTicketView;
 import org.piet.ticketsbackend.tickets.dto.TicketResponse;
 import org.springframework.stereotype.Component;
 
+// SOLID: SRP - klasa wyłącznie do mapowania DTO <-> Entity
+// SOLID: OCP - łatwe dodawanie nowych mapperów bez zmiany istniejącego kodu
 @Component
 public class TicketMapper {
 
+    // SOLID: SRP - mapowanie do pełnego TicketResponse
     public TicketResponse toResponse(TicketEntity t) {
         TicketResponse dto = new TicketResponse();
-
         dto.setId(t.getId());
         dto.setPassengerId(t.getPassenger().getId());
-        dto.setPassengerName(
-                t.getPassenger().getFirstName() + " " + t.getPassenger().getLastName()
-        );
-
+        dto.setPassengerName(t.getPassenger().getFirstName() + " " + t.getPassenger().getLastName());
         dto.setTrainId(t.getTrainId());
         dto.setTrainName(t.getTrainName());
-
         dto.setWagonId(t.getWagonId());
         dto.setCoachNumber(t.getCoachNumber());
         dto.setSeatNumber(t.getSeatNumber());
-
         dto.setRouteId(t.getRouteId());
         dto.setStartStationCode(t.getStartStationCode());
         dto.setEndStationCode(t.getEndStationCode());
@@ -33,13 +30,12 @@ public class TicketMapper {
         dto.setPrice(t.getPrice());
         dto.setTicketType(t.getTicketType());
         dto.setStatus(t.getStatus());
-
         return dto;
     }
 
+    // SOLID: SRP - mapowanie do uproszczonego MyTicketView
     public MyTicketView toMyTicketView(TicketEntity t) {
         MyTicketView v = new MyTicketView();
-
         v.setTicketId(t.getId());
         v.setTrainName(t.getTrainName());
         v.setCoachNumber(t.getCoachNumber());
@@ -50,7 +46,6 @@ public class TicketMapper {
         v.setPrice(t.getPrice());
         v.setTicketType(t.getTicketType());
         v.setStatus(t.getStatus());
-
         return v;
     }
 }

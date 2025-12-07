@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+// SOLID: SRP - klasa odpowiada tylko za alokację i zwalnianie siedzeń
+// SOLID: DIP - zależności repozytoriów wstrzykiwane przez konstruktor
 @Component
 @RequiredArgsConstructor
 public class SeatApiClient {
@@ -21,15 +23,7 @@ public class SeatApiClient {
     private final WagonRepository wagonRepository;
     private final WagonSeatReservationRepository reservationRepository;
 
-    public record SeatAllocationResponse(
-            Long trainId,
-            Long wagonId,
-            Integer seatNumber,
-            LocalDate travelDate,
-            String trainName
-    ) {
-    }
-
+    // SOLID: SRP - alokacja miejsca w wagonie
     public SeatAllocationResponse allocateSeat(Long trainId,
                                                Long wagonId,
                                                Integer coachNumber,
@@ -44,7 +38,7 @@ public class SeatApiClient {
         }
 
         Integer capacity = wagon.getSeatsTotal();
-        if (capacity == null || capacity <= 0) {
+        if (capacity == null || capacity == 0) {
             throw new BadRequestException("Wagon has no seats configured");
         }
 
@@ -60,14 +54,7 @@ public class SeatApiClient {
             taken.add(r.getSeatNumber());
         }
 
-        Integer freeSeat = null;
-        for (int seat = 1; seat <= capacity; seat++) {
-            if (!taken.contains(seat)) {
-                freeSeat = seat;
-                break;
-            }
-        }
-
+        Integer freeSeat = findFreeSeat(capacity, taken);
         if (freeSeat == null) {
             throw new BadRequestException("No free seats in this wagon for selected date");
         }
@@ -79,16 +66,20 @@ public class SeatApiClient {
         reservationRepository.save(reservation);
 
         String trainName = train.getModel();
-
-        return new SeatAllocationResponse(
-                trainId,
-                wagonId,
-                freeSeat,
-                travelDate,
-                trainName
-        );
+        return new SeatAllocationResponse(trainId, wagonId, freeSeat, travelDate, trainName);
     }
 
+    // SOLID: SRP - wyznaczenie wolnego numeru miejsca
+    private Integer findFreeSeat(Integer capacity, Set<Integer> taken) {
+        for (int seat = 1; seat <= capacity; seat++) {
+            if (!taken.contains(seat)) {
+                return seat;
+            }
+        }
+        return null;
+    }
+
+    // SOLID: SRP - zwolnienie miejsca w wagonie
     public void releaseSeat(Long trainId,
                             Long wagonId,
                             Integer seatNumber,
@@ -105,5 +96,13 @@ public class SeatApiClient {
         reservationRepository
                 .findByWagon_IdAndSeatNumberAndTravelDate(wagonId, seatNumber, travelDate)
                 .ifPresent(reservationRepository::delete);
+    }
+
+    // SOLID: OCP
+    public record SeatAllocationResponse(Long trainId,
+                                         Long wagonId,
+                                         Integer seatNumber,
+                                         LocalDate travelDate,
+                                         String trainName) {
     }
 }

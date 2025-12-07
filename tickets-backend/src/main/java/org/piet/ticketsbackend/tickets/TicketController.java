@@ -13,28 +13,31 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+// SOLID: SRP - kontroler obsługuje wyłącznie routing HTTP i walidację
+// SOLID: DIP - zależność tylko od warstwy serwisu i mappera
 @RestController
+@RequestMapping("/ticket")
 @RequiredArgsConstructor
 public class TicketController {
 
     private final TicketService ticketService;
     private final TicketMapper ticketMapper;
 
-    @PostMapping("/ticket")
+    @PostMapping
     public TicketResponse buyTicket(@Valid @RequestBody TicketPurchaseRequest request) {
         return ticketMapper.toResponse(ticketService.buyTicket(request));
     }
 
-    @DeleteMapping("/ticket/{id}")
+    @DeleteMapping("/{id}")
     public void cancelTicket(@PathVariable Long id) {
         ticketService.cancelTicket(id);
     }
 
     @GetMapping("/my-tickets")
-    public PageDto myTickets(@RequestParam UUID passengerId,
-                             PaginationDto paginationDto) {
-        Page<?> page = ticketService.getTicketsForPassenger(passengerId, paginationDto);
-        Page<MyTicketView> mapped = page.map(t -> ticketMapper.toMyTicketView((TicketEntity) t));
+    public PageDto<MyTicketView> myTickets(@RequestParam UUID passengerId,
+                                           PaginationDto paginationDto) {
+        Page<TicketEntity> page = ticketService.getTicketsForPassenger(passengerId, paginationDto);
+        Page<MyTicketView> mapped = page.map(ticketMapper::toMyTicketView);
         return PageDto.create(mapped);
     }
 }

@@ -21,40 +21,32 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+// SOLID: SRP - Klasa skupia się wyłącznie na logice biznesowej biletów
+// SOLID: DIP - Zależność od abstrakcji (interfejsów klientów API)
 @Service
 @RequiredArgsConstructor
 public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final PassengerRepository passengerRepository;
-    private final SeatApiClient seatApiClient;
-    private final RouteApiClient routeApiClient;
+    private final SeatApiClient seatApiClient;  // SOLID: DIP - wstrzykiwanie interfejsu
+    private final RouteApiClient routeApiClient; // SOLID: DIP - wstrzykiwanie interfejsu
 
+    // SOLID: SRP - zakup biletu
     @Transactional
     public TicketEntity buyTicket(TicketPurchaseRequest request) {
-
         PassengerEntity passenger = passengerRepository.findById(request.getPassengerId())
                 .orElseThrow(() -> new NotFoundException("Passenger not found"));
 
+        // SOLID: SRP - delegacja alokacji siedzenia do dedykowanego klienta
         SeatAllocationResponse seat = seatApiClient.allocateSeat(
-                request.getTrainId(),
-                request.getWagonId(),
-                request.getCoachNumber(),
-                request.getTravelDate()
-        );
+                request.getTrainId(), request.getWagonId(), request.getCoachNumber(), request.getTravelDate());
 
+        // SOLID: SRP - delegacja informacji o trasie do dedykowanego klienta
         RouteInfo routeInfo = routeApiClient.getRouteInfo(
-                request.getRouteId(),
-                request.getTravelDate(),
-                request.getStartStationCode(),
-                request.getEndStationCode()
-        );
+                request.getRouteId(), request.getTravelDate(), request.getStartStationCode(), request.getEndStationCode());
 
-        BigDecimal price = routeInfo.getBasePrice();
-        TicketType type = request.getTicketType();
-        if (type == TicketType.DISCOUNT) {
-            price = price.multiply(new BigDecimal("0.5"));
-        }
+        BigDecimal price = calculatePrice(routeInfo.getBasePrice(), request.getTicketType()); // SOLID: SRP - wyodrębnienie kalkulacji ceny
 
         TicketEntity ticket = TicketEntity.builder()
                 .passenger(passenger)
@@ -72,32 +64,35 @@ public class TicketService {
                 .price(price)
                 .travelDate(request.getTravelDate())
                 .status(TicketStatus.ACTIVE)
-                .ticketType(type)
+                .ticketType(request.getTicketType())
                 .build();
 
         return ticketRepository.save(ticket);
     }
 
+    // SOLID: SRP - pojedyncza metoda do kalkulacji ceny
+    private BigDecimal calculatePrice(BigDecimal basePrice, TicketType type) {
+        if (type == TicketType.DISCOUNT) {
+            return basePrice.multiply(new BigDecimal("0.5"));
+        }
+        return basePrice;
+    }
+
+    // SOLID: SRP - anulowanie biletu
     @Transactional
     public void cancelTicket(Long id) {
         TicketEntity ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
-        seatApiClient.releaseSeat(
-                ticket.getTrainId(),
-                ticket.getWagonId(),
-                ticket.getSeatNumber(),
-                ticket.getTravelDate()
-        );
+        // SOLID: SRP - delegacja zwalniania siedzenia
+        seatApiClient.releaseSeat(ticket.getTrainId(), ticket.getWagonId(), ticket.getSeatNumber(), ticket.getTravelDate());
 
         ticket.setStatus(TicketStatus.CANCELED);
         ticketRepository.save(ticket);
     }
 
+    // SOLID: SRP - wyszukiwanie biletów pasażera
     public Page<TicketEntity> getTicketsForPassenger(UUID passengerId, PaginationDto paginationDto) {
-        return ticketRepository.findByPassenger_Id(
-                passengerId,
-                paginationDto.toPageable()
-        );
+        return ticketRepository.findByPassengerId(passengerId, paginationDto.toPageable());
     }
 }

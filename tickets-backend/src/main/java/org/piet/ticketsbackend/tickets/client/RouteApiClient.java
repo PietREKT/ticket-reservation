@@ -11,58 +11,47 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+// SOLID: SRP - wyłącznie pobieranie informacji o trasie (bez zapisywania/alokacji)
+// SOLID: DIP - konstruktor wstrzykuje zależności (RouteService, DistanceService)
 @Component
 public class RouteApiClient {
 
     private final RouteService routeService;
     private final DistanceService distanceService;
 
-    public RouteApiClient(RouteService routeService,
-                          DistanceService distanceService) {
+    // SOLID: DIP - przez konstruktor
+    public RouteApiClient(RouteService routeService, DistanceService distanceService) {
         this.routeService = routeService;
         this.distanceService = distanceService;
     }
 
-
-    public RouteInfo getRouteInfo(Long routeId,
-                                  LocalDate travelDate,
-                                  String startStationCode,
-                                  String endStationCode) {
-
+    // SOLID: SRP - obliczanie informacji o trasie
+    public RouteInfo getRouteInfo(Long routeId, LocalDate travelDate,
+                                  String startStationCode, String endStationCode) {
         Route route = routeService.getRouteById(routeId);
-
         double distanceKm = distanceService.routeLength(route);
 
-        BigDecimal basePrice = BigDecimal
-                .valueOf(distanceKm)
+        // SOLID: SRP - wyodrębniona logika obliczania ceny
+        BigDecimal basePrice = BigDecimal.valueOf(distanceKm)
                 .multiply(new BigDecimal("0.5"))
                 .setScale(2, RoundingMode.HALF_UP);
 
         LocalDateTime departure = LocalDateTime.of(travelDate, LocalTime.of(8, 0));
 
-        return new RouteInfo(
-                route.getId(),
-                startStationCode,
-                endStationCode,
-                departure,
-                basePrice
-        );
+        return new RouteInfo(route.getId(), startStationCode, endStationCode,
+                departure, basePrice);
     }
 
-
+    // SOLID: OCP - Open-Closed dla rozszerzeń
     public static class RouteInfo {
-
         private final Long routeId;
         private final String startStationName;
         private final String endStationName;
         private final LocalDateTime departureTime;
         private final BigDecimal basePrice;
 
-        public RouteInfo(Long routeId,
-                         String startStationName,
-                         String endStationName,
-                         LocalDateTime departureTime,
-                         BigDecimal basePrice) {
+        public RouteInfo(Long routeId, String startStationName, String endStationName,
+                         LocalDateTime departureTime, BigDecimal basePrice) {
             this.routeId = routeId;
             this.startStationName = startStationName;
             this.endStationName = endStationName;
@@ -70,24 +59,11 @@ public class RouteApiClient {
             this.basePrice = basePrice;
         }
 
-        public Long getRouteId() {
-            return routeId;
-        }
-
-        public String getStartStationName() {
-            return startStationName;
-        }
-
-        public String getEndStationName() {
-            return endStationName;
-        }
-
-        public LocalDateTime getDepartureTime() {
-            return departureTime;
-        }
-
-        public BigDecimal getBasePrice() {
-            return basePrice;
-        }
+        // Gettery
+        public Long getRouteId() { return routeId; }
+        public String getStartStationName() { return startStationName; }
+        public String getEndStationName() { return endStationName; }
+        public LocalDateTime getDepartureTime() { return departureTime; }
+        public BigDecimal getBasePrice() { return basePrice; }
     }
 }

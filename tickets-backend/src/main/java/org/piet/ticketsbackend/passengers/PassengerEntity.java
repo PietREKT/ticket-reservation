@@ -1,34 +1,32 @@
 package org.piet.ticketsbackend.passengers;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import org.piet.ticketsbackend.users.entities.User;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
+// SOLID: SRP
 @Entity
 @Table(name = "passenger")
-@PrimaryKeyJoinColumn(name = "id")
 @Getter
 @Setter
-public class PassengerEntity extends User {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PassengerEntity {
 
-    @Column(nullable = false)
+    @Id
+    @GeneratedValue
+    private UUID id;
+
     private String firstName;
 
-    @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private LocalDate birthDate;
 
-    @Column(nullable = false, unique = true)
     private String documentNumber;
 }

@@ -60,3 +60,4 @@ public class WagonController {
         return ResponseEntity.noContent().build();
     }
 }
+

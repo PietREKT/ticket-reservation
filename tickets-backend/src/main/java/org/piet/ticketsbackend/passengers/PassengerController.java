@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+// SOLID: SRP - kontroler odpowiada tylko za HTTP
+// SOLID: DIP - zależy od abstrakcji serwisu/mapperów
 @RestController
 @RequestMapping("/passenger")
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class PassengerController {
 
     @PostMapping
     public PassengerResponse create(@Valid @RequestBody PassengerRequest request) {
+        // SOLID: SRP - przekazanie requestu i mapowanie odpowiedzi
         return passengerMapper.toResponse(passengerService.create(request));
     }
 

@@ -1,5 +1,6 @@
 package org.piet.ticketsbackend.trains.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -11,7 +12,16 @@ public class TrainUpdateDto {
 
     @NotBlank
     @Size(max = 100)
-    private String name;
+    private String number;
+
+    @Size(max = 50)
+    private String lineNumber;
+
+    @Min(0)
+    private Integer speed;
+
+    @Min(0)
+    private Integer wagonCount;
 
     private Long routeId;
 
@@ -23,12 +33,36 @@ public class TrainUpdateDto {
         this.model = model;
     }
 
-    public String getName() {
-        return name;
+    public String getNumber() {
+        return number;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(String lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
+    public Integer getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(Integer speed) {
+        this.speed = speed;
+    }
+
+    public Integer getWagonCount() {
+        return wagonCount;
+    }
+
+    public void setWagonCount(Integer wagonCount) {
+        this.wagonCount = wagonCount;
     }
 
     public Long getRouteId() {
@@ -39,3 +73,4 @@ public class TrainUpdateDto {
         this.routeId = routeId;
     }
 }
+

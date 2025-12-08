@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WagonRepository extends JpaRepository<WagonEntity, Long> {
 
-    Page<WagonEntity> findAllByTrainId(Long trainId, Pageable pageable);
+    Page<WagonEntity> findAllByTrain_Id(Long trainId, Pageable pageable);
 }

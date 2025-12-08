@@ -11,7 +11,6 @@ import org.piet.ticketsbackend.wagons.dto.WagonUpdateDto;
 import org.piet.ticketsbackend.wagons.entity.WagonEntity;
 import org.piet.ticketsbackend.wagons.repository.WagonRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,15 +26,13 @@ public class WagonServiceImpl implements WagonService {
 
     @Override
     public PageDto<WagonDto> getAll(PaginationDto paginationDto) {
-        PageRequest pageable = PageRequest.of(paginationDto.getPage(), paginationDto.getSize());
-        Page<WagonEntity> page = repository.findAll(pageable);
+        Page<WagonEntity> page = repository.findAll(paginationDto.toPageable());
         return PageDto.create(page.map(this::toDto));
     }
 
     @Override
     public PageDto<WagonDto> getByTrain(Long trainId, PaginationDto paginationDto) {
-        PageRequest pageable = PageRequest.of(paginationDto.getPage(), paginationDto.getSize());
-        Page<WagonEntity> page = repository.findAllByTrainId(trainId, pageable);
+        Page<WagonEntity> page = repository.findAllByTrain_Id(trainId, paginationDto.toPageable());
         return PageDto.create(page.map(this::toDto));
     }
 
@@ -52,11 +49,7 @@ public class WagonServiceImpl implements WagonService {
                 .orElseThrow(() -> new NotFoundException("train.not_found"));
 
         WagonEntity entity = new WagonEntity();
-        entity.setNumber(dto.getNumber());
-        entity.setSeatsTotal(dto.getSeatsTotal());
-        entity.setSeatsFree(dto.getSeatsFree());
-        entity.setSeatClass(dto.getSeatClass());
-        entity.setTrain(train);
+        updateEntityFromCreateDto(entity, dto, train);
 
         return toDto(repository.save(entity));
     }
@@ -66,10 +59,7 @@ public class WagonServiceImpl implements WagonService {
         WagonEntity entity = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("wagon.not_found"));
 
-        entity.setNumber(dto.getNumber());
-        entity.setSeatsTotal(dto.getSeatsTotal());
-        entity.setSeatsFree(dto.getSeatsFree());
-        entity.setSeatClass(dto.getSeatClass());
+        updateEntityFromUpdateDto(entity, dto);
 
         return toDto(repository.save(entity));
     }
@@ -90,5 +80,20 @@ public class WagonServiceImpl implements WagonService {
                 e.getSeatClass(),
                 e.getTrain().getId()
         );
+    }
+
+    private void updateEntityFromCreateDto(WagonEntity entity, WagonCreateDto dto, TrainEntity train) {
+        entity.setNumber(dto.getNumber());
+        entity.setSeatsTotal(dto.getSeatsTotal());
+        entity.setSeatsFree(dto.getSeatsFree());
+        entity.setSeatClass(dto.getSeatClass());
+        entity.setTrain(train);
+    }
+
+    private void updateEntityFromUpdateDto(WagonEntity entity, WagonUpdateDto dto) {
+        entity.setNumber(dto.getNumber());
+        entity.setSeatsTotal(dto.getSeatsTotal());
+        entity.setSeatsFree(dto.getSeatsFree());
+        entity.setSeatClass(dto.getSeatClass());
     }
 }
